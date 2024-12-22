@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package processing.coin;
+
+import "google/protobuf/empty.proto";
+
+option go_package = "code.emcdtech.com/b2b/processing/protocol/coinpb";
+
+message Network {
+  string id = 1;
+  string title = 2;
+}
+
+message Coin {
+  string id = 1;
+  string title = 2;
+  string description = 3;
+  string media_url = 4;
+  repeated Network networks = 5;
+}
+
+service CoinsService {
+  rpc GetCoins(google.protobuf.Empty) returns (GetCoinsResponse);
+}
+
+message GetCoinsResponse {
+  repeated Coin coins = 1;
+}

@@ -1,0 +1,50 @@
+include:
+  - project: 'ci-tools/templates'
+    file: 'build/docker-build.yml'
+  - project: 'ci-tools/templates'
+    file: 'deploy/docker-deploy.yml'
+  - project: 'ci-tools/templates'
+    file: 'deploy/argo.yml'
+  - project: 'ci-tools/templates'
+    file: 'tests/go-lint.yml'
+  - project: 'ci-tools/templates'
+    file: 'deploy/migrate.yml'
+
+lint_tests:
+  extends: .template_lint_tests
+
+
+build_branch:
+  extends: .template_branch_build
+  variables:
+    DOCKER_BUILD_ARG: 'SWAGGER=true'
+
+
+
+migrate_dev:
+  extends: .template_migrate_dev
+deploy_dev:
+  extends: .argo_template_deploy_dev
+
+deploy_stage:
+  extends: .argo_template_deploy_stage
+  when: manual
+migrate_stage:
+  extends: .template_migrate_stage
+  when: manual
+
+
+build_tag:
+  extends: .template_tag_build
+  variables:
+    DOCKER_BUILD_ARG: 'SWAGGER=true'
+
+deploy_prod:
+  extends: .template_deploy_prod
+  when: manual
+migrate_prod:
+  extends: .template_migrate_prod
+  when: manual
+
+restart_prod_manual:
+  extends: .template_restart_prod

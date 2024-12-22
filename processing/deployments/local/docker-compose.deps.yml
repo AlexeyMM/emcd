@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16.1
+    restart: always
+    ports:
+      # to avoid db port conflict with b2b-endpoint
+      - "6543:5432"
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: processing
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-U", "user", "-d", "processing" ]
+      interval: 1s
+      timeout: 5s
+      retries: 10
+
+  rabbitmq:
+    image: rabbitmq:3.12-management
+    restart: always
+    ports:
+      - "5672:5672"   # AMQP protocol port
+      - "15672:15672" # Management UI port
+    environment:
+      RABBITMQ_DEFAULT_USER: user
+      RABBITMQ_DEFAULT_PASS: password
+    healthcheck:
+      test: [ "CMD", "rabbitmq-diagnostics", "check_port_connectivity" ]
+      interval: 1s
+      timeout: 5s
+      retries: 10
+
+  flyway:
+    container_name: flyway-skeleton-service
+    image: flyway/flyway:latest
+    command:
+      -url=jdbc:postgresql://postgres:5432/processing -user=user -password=password -validateMigrationNaming="true" -connectRetries=60 migrate
+    volumes:
+      - ../../migrations:/flyway/sql
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+networks:
+  default:
+    name: network-skeleton-service

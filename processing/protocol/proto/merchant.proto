@@ -1,0 +1,63 @@
+syntax = "proto3";
+
+package merchant;
+
+import "common.proto";
+import "protocol/3rd-party/protovalidate/validate.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "code.emcdtech.com/b2b/processing/protocol/merchantpb";
+
+service InvoiceMerchantService {
+  rpc CreateInvoice(CreateInvoiceRequest) returns (common.Invoice);
+  rpc CreateInvoiceForm(CreateInvoiceFormRequest) returns (InvoiceForm);
+}
+
+message CreateInvoiceRequest {
+  string external_id = 1; // payment id from merchant system
+  string title = 2;
+  string description = 3;
+  string coin_id = 4;
+  string network_id = 5;
+  string amount = 6 [(buf.validate.field).cel = {
+    id: "amount.decimal",
+    message: "Amount must be decimal",
+    expression: "this.matches('^\\\\d+(\\\\.\\\\d+)?$')"
+  }];
+  string buyer_email = 7 [(buf.validate.field).string.email = true];
+  string checkout_url = 8 [(buf.validate.field).string.uri = true];
+  string merchant_id = 9 [(buf.validate.field).string.uuid = true];
+
+  google.protobuf.Timestamp expires_at = 10;
+}
+
+message CreateInvoiceFormRequest {
+  optional string title = 1;
+  optional string description = 2;
+  optional string coin_id = 3;
+  optional string network_id = 4;
+  optional string amount = 5 [(buf.validate.field).cel = {
+    id: "amount.decimal",
+    message: "Amount must be decimal",
+    expression: "this.matches('^\\\\d+(\\\\.\\\\d+)?$')"
+  }];
+  optional string buyer_email = 6 [(buf.validate.field).string.email = true];
+  string checkout_url = 7 [(buf.validate.field).string.uri = true];
+  string merchant_id = 8 [(buf.validate.field).string.uuid = true];
+
+  optional string external_id = 9;
+  optional google.protobuf.Timestamp expires_at = 10;
+}
+
+message InvoiceForm {
+  optional string title = 1;
+  optional string description = 2;
+  optional string coin_id = 3;
+  optional string network_id = 4;
+  optional string amount = 5;
+  optional string buyer_email = 6;
+  string checkout_url = 7;
+  string merchant_id = 8;
+  string id = 9;
+  optional google.protobuf.Timestamp expires_at = 10;
+}

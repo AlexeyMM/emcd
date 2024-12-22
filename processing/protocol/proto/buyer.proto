@@ -1,0 +1,56 @@
+syntax = "proto3";
+
+package buyer;
+
+import "common.proto";
+import "protocol/3rd-party/protovalidate/validate.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "code.emcdtech.com/b2b/processing/protocol/buyerpb";
+
+service InvoiceBuyerService {
+  rpc GetInvoice(GetInvoiceRequest) returns (common.Invoice);
+  rpc GetInvoiceForm(GetInvoiceFormRequest) returns (InvoiceForm);
+  rpc SubmitInvoiceForm(InvoiceForm) returns (common.Invoice);
+  rpc CalculateInvoicePayment(CalculateInvoicePaymentRequest) returns (CalculateInvoicePaymentResponse);
+}
+
+message GetInvoiceRequest {
+  string id = 1 [(buf.validate.field).string.uuid = true];
+}
+
+message GetInvoiceFormRequest {
+  string id = 1 [(buf.validate.field).string.uuid = true];
+}
+
+message InvoiceForm {
+  string id = 1;
+  optional string title = 2;
+  optional string description = 3;
+  optional string coin_id = 4;
+  optional string network_id = 5;
+
+  optional string amount = 6 [(buf.validate.field).cel = {
+    id: "decimal.amount",
+    message: "Amount must be positive decimal",
+    expression: "this.matches('^\\\\d+(\\\\.\\\\d+)?$')"
+  }]; // positive decimal
+  optional string buyer_email = 7 [(buf.validate.field).string.email = true];
+  string merchant_id = 8 [(buf.validate.field).string.uuid = true];
+
+  google.protobuf.Timestamp expires_at = 9;
+}
+
+message CalculateInvoicePaymentRequest {
+  string merchant_id = 1 [(buf.validate.field).string.uuid = true];
+  string raw_amount = 2 [(buf.validate.field).cel = {
+    id: "decimal.amount",
+    message: "Amount must be positive decimal",
+    expression: "this.matches('^\\\\d+(\\\\.\\\\d+)?$')"
+  }]; // positive decimal
+}
+
+message CalculateInvoicePaymentResponse {
+  string amount = 1;
+  string buyer_fee = 2;
+}

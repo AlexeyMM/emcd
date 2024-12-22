@@ -1,0 +1,108 @@
+syntax = "proto3";
+
+package swap;
+
+option go_package = "code.emcdtech.com/b2b/swap/protocol/swap;swap";
+
+service SwapService {
+  rpc Estimate(EstimateRequest) returns (EstimateResponse);
+  rpc PrepareSwap(PrepareSwapRequest) returns (PrepareSwapResponse);
+  rpc StartSwap(StartSwapRequest) returns (StartSwapResponse) {}
+  rpc Status(StatusRequest) returns (stream StatusResponse);
+  rpc GetSwapByID(GetSwapByIDRequest) returns (GetSwapByIDResponse);
+}
+
+enum SwapStatus {
+  SWAP_STATUS_UNKNOWN = 0;
+  WAIT_DEPOSIT = 1;
+  CHECK_DEPOSIT = 2;
+  DEPOSIT_ERROR = 3; // Deprecated
+  TRANSFER_TO_UNIFIED = 4;
+  CREATE_ORDER = 5;
+  PLACE_ORDER = 6;
+  CHECK_ORDER = 7;
+  PLACE_ADDITIONAL_ORDER = 8;
+  CHECK_ADDITIONAL_ORDER = 9;
+  TRANSFER_FROM_SUB_TO_MASTER = 10;
+  CHECK_TRANSFER_FROM_SUB_TO_MASTER = 11;
+  PREPARE_WITHDRAW = 12;
+  WITHDRAW_SWAP_STATUS = 13;
+  WAIT_WITHDRAW = 14;
+  COMPLETED = 15;
+  CANCEL = 16;
+  ERROR = 17;
+  MANUAL_COMPLETED = 18;
+}
+
+message GetSwapByIDRequest {
+  string id = 1;
+}
+
+message GetSwapByIDResponse {
+  string coin_from = 1;
+  string coin_to = 2;
+  string network_from = 3;
+  string network_to = 4;
+  string amount_from = 5;
+  string amount_to = 6;
+  swap.AddressData address_from = 7;
+  swap.AddressData address_to = 8;
+  int32 status = 9;
+  int32 start_time = 10;
+  int32 swap_duration = 11;
+  string rate = 12;
+}
+
+message AddressData {
+  string address = 1;
+  string tag = 2;
+}
+
+message EstimateRequest {
+  string coin_from = 1;
+  string coin_to = 2;
+  string network_from = 3;
+  string network_to = 4;
+  string amount_from = 5;
+  string amount_to = 6;
+}
+
+message EstimateResponse {
+  string amount_from = 1;
+  string amount_to = 2;
+  string rate = 3;
+  string min_from = 4;
+  string max_from = 5;
+}
+
+message PrepareSwapRequest {
+  string coin_from = 1;
+  string coin_to = 2;
+  string network_from = 3;
+  string network_to = 4;
+  string amount_from = 5;
+  string amount_to = 6;
+  swap.AddressData address_to = 7;
+  string parent_id = 8;
+}
+
+message PrepareSwapResponse {
+  string id = 1;
+  AddressData deposit_address = 2;
+}
+
+message StartSwapRequest {
+  string swap_id = 1;
+  string email = 2;
+  string language = 3;
+}
+
+message StartSwapResponse {}
+
+message StatusRequest {
+  string swap_id = 1;
+}
+
+message StatusResponse {
+  int32 status = 1;
+}

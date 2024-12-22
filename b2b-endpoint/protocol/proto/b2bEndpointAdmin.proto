@@ -1,0 +1,100 @@
+syntax = "proto3";
+
+package b2bEndpointAdmin;
+
+option go_package = "code.emcdtech.com/b2b/b2b-endpoint/protocol/b2bEndpointAdmin;b2bEndpointAdmin";
+
+import "google/protobuf/timestamp.proto";
+
+service endpointAdminService {
+
+  // Клиенты
+
+  rpc AddClient(AddClientRequest) returns (AddClientResponse) {}
+
+  // Ключи
+
+  rpc GenerateKey(GenerateKeyRequest) returns (GenerateKeyResponse) {}
+  rpc GetActiveKeys(GetActiveKeysRequest) returns (GetActiveKeysResponse) {}
+  rpc DeactivateKey(DeactivateKeyRequest) returns (DeactivateKeyResponse) {}
+  rpc DeactivateAllKeys(DeactivateAllKeysRequest) returns (DeactivateAllKeysResponse) {}
+
+  // Whitelist IPs
+
+  rpc AddIPs(AddIPsRequest) returns (AddIPsResponse) {}
+  rpc GetIPs(GetIPsRequest) returns (GetIPsResponse) {}
+  rpc DeleteIP(DeleteIPRequest) returns (DeleteIPResponse) {}
+  rpc DeleteAllIPs(DeleteAllIPsRequest) returns (DeleteAllIPsResponse) {}
+}
+
+message Secret {
+  string api_key = 1;
+  google.protobuf.Timestamp created_at = 2;
+  google.protobuf.Timestamp last_used = 3;
+}
+
+message AddClientRequest {
+  string name = 1;
+}
+
+message AddClientResponse{
+  string id = 1;
+}
+
+message GenerateKeyRequest {
+  string client_id = 1;
+}
+
+message GenerateKeyResponse {
+  string api_key = 1;
+  string api_secret = 2;
+}
+
+message GetActiveKeysRequest {
+  string client_id = 1;
+}
+
+message GetActiveKeysResponse {
+  repeated Secret secrets = 1;
+}
+
+message DeactivateKeyRequest {
+  string client_id = 1;
+  string api_key = 2;
+}
+
+message DeactivateKeyResponse {}
+
+message DeactivateAllKeysRequest {
+  string client_id = 1;
+}
+
+message DeactivateAllKeysResponse {}
+
+message AddIPsRequest {
+  string api_key = 1;
+  repeated string ips = 2;
+}
+
+message AddIPsResponse {}
+
+message GetIPsRequest {
+  string api_key = 1;
+}
+
+message GetIPsResponse {
+  repeated string ips = 1;
+}
+
+message DeleteIPRequest {
+  string api_key = 1;
+  string ip = 2;
+}
+
+message DeleteIPResponse {}
+
+message DeleteAllIPsRequest {
+  string api_key = 1;
+}
+
+message DeleteAllIPsResponse {}

@@ -1,0 +1,3 @@
+protocol/**/*.pb.go gitlab-generated
+protocol/3rd-party/**/* gitlab-generated
+docs/* gitlab-generated

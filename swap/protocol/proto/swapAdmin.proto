@@ -1,0 +1,201 @@
+syntax = "proto3";
+
+package swapAdmin;
+
+option go_package = "code.emcdtech.com/b2b/swap/protocol/swapAdmin;swapAdmin";
+
+import "google/protobuf/timestamp.proto";
+import "protocol/proto/swap.proto";
+
+service AdminService {
+  // Комплекс ручек для покупки/продажи монет через USDT
+
+  rpc GetBalanceByCoin(GetBalanceByCoinRequest) returns (GetBalanceByCoinResponse) {}
+  rpc TransferBetweenAccountTypes(TransferBetweenAccountTypesRequest) returns (TransferBetweenAccountTypesResponse) {}
+  rpc PlaceOrderForUSDT(PlaceOrderForUSDTRequest) returns (PlaceOrderForUSDTResponse) {}
+  rpc CheckOrder(CheckOrderRequest) returns (CheckOrderResponse) {}
+  rpc Withdraw(WithdrawRequest) returns (WithdrawResponse) {}
+  rpc GetWithdrawalLink(GetWithdrawalLinkRequest) returns (GetWithdrawalLinkResponse) {}
+
+  // Конвертация монет
+
+  rpc RequestAQuote(RequestAQuoteRequest) returns (RequestAQuoteResponse){}
+  rpc ConfirmAQuote(ConfirmAQuoteRequest) returns (ConfirmAQuoteResponse) {}
+  rpc GetConvertStatus(GetConvertStatusRequest) returns (GetConvertStatusResponse) {}
+
+  // Информативные ручки
+
+  rpc GetSwaps(GetSwapsRequest) returns (GetSwapsResponse) {}
+  rpc GetSwapStatusHistory(GetSwapStatusHistoryRequest) returns (GetSwapStatusHistoryResponse) {}
+
+  // Прочее
+
+  rpc ChangeManualSwapStatus(ChangeManualSwapStatusRequest) returns (ChangeManualSwapStatusResponse) {}
+  rpc SetDestinationAddress(SetDestinationAddressRequest) returns (SetDestinationAddressResponse) {}
+}
+
+enum AccountType {
+  UNKNOWN = 0;
+  FUND = 1;
+  UNIFIED = 2;
+}
+
+enum OrderStatus {
+  ORDER_UNKNOWN = 0;
+  ORDER_CREATED = 1;
+  ORDER_PENDING = 2;
+  ORDER_FILLED = 3; // success, ордер заполнен в полном объёме
+  ORDER_PARTIALLY_FILLED = 4; // success, но ордер заполнен не в полном объёме
+  ORDER_FAILED = 5;
+}
+
+enum Direction {
+  DIRECTION_UNKNOWN = 0;
+  SELL = 1;
+  BUY = 2;
+}
+
+message Swap {
+  string id = 1;
+  string user_id = 2;
+  string coin_from = 3;
+  string coin_to = 4;
+  string network_from = 5;
+  string network_to = 6;
+  swap.AddressData address_from = 7;
+  swap.AddressData address_to = 8;
+  string amount_from = 9;
+  string amount_to = 10;
+  swap.SwapStatus status = 11;
+  google.protobuf.Timestamp start_time = 12;
+  google.protobuf.Timestamp end_time = 13;
+  string partner_id = 14;
+}
+
+message GetBalanceByCoinRequest {
+  AccountType account_type = 1;
+  string coin = 2;
+}
+
+message GetBalanceByCoinResponse {
+  string amount = 1;
+}
+
+message TransferBetweenAccountTypesRequest {
+  AccountType from_account_type = 1;
+  AccountType to_account_type = 2;
+  string coin = 3;
+  string amount = 4;
+}
+
+message TransferBetweenAccountTypesResponse {}
+
+message PlaceOrderForUSDTRequest {
+  string coin = 1; // coin, который нужно купить/продать за USDT
+  Direction direction = 2;
+  string amount = 3;
+}
+
+message PlaceOrderForUSDTResponse {
+  string order_id = 1;
+}
+
+message CheckOrderRequest {
+  string id = 1;
+}
+
+message CheckOrderResponse {
+  OrderStatus status = 1;
+}
+
+message WithdrawRequest {
+  string swap_id = 1;
+}
+
+message WithdrawResponse {
+  int32 withdrawal_id = 1;
+}
+
+message GetWithdrawalLinkRequest {
+  int32 withdrawal_id = 1;
+}
+
+message GetWithdrawalLinkResponse {
+  string link = 1; // линк на explorer, если он нам известен, если нет, hash_id
+}
+
+message RequestAQuoteRequest {
+  string from = 1;
+  string to = 2;
+  AccountType accountType = 3;
+  string amount = 4;
+}
+
+message RequestAQuoteResponse {
+  string id = 1;
+  string rate = 2;
+  string from_amount = 3;
+  string to_amount = 4;
+  google.protobuf.Timestamp expired_time = 5;
+}
+
+message ConfirmAQuoteRequest {
+  string id = 1;
+}
+
+message ConfirmAQuoteResponse {
+  string status = 1;
+}
+
+message GetConvertStatusRequest {
+  string id = 1;
+  AccountType accountType = 2;
+}
+
+message GetConvertStatusResponse {
+  string status = 1;
+}
+
+message GetSwapsRequest {
+  optional string id = 1;
+  optional string user_id = 2;
+  optional string email = 3;
+  optional string address_from = 4;
+  optional google.protobuf.Timestamp from = 5;
+  optional google.protobuf.Timestamp to = 6;
+  int32 offset = 7;
+  int32 limit = 8;
+}
+
+message GetSwapsResponse {
+  repeated Swap swaps = 1;
+  int64 total = 2;
+}
+
+message GetSwapStatusHistoryRequest {
+  string swap_id = 1;
+}
+
+message GetSwapStatusHistoryResponse {
+  message HistoryItem {
+    swap.SwapStatus status = 1;
+    google.protobuf.Timestamp set_at = 2;
+  }
+
+  repeated HistoryItem statusHistory = 1;
+}
+
+message ChangeManualSwapStatusRequest {
+  string swap_id = 1;
+  swap.SwapStatus status = 2;
+}
+
+message ChangeManualSwapStatusResponse {}
+
+message SetDestinationAddressRequest {
+  string swap_id = 1;
+  optional string address = 2;
+  optional string tag = 3;
+}
+
+message SetDestinationAddressResponse {}

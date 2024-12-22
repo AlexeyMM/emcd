@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package swapWithdraw;
+
+option go_package = "code.emcdtech.com/b2b/swap/protocol/swapWithdraw;swapWithdraw";
+
+service SwapWithdrawService {
+  rpc GetTransactionLink(GetTransactionLinkRequest) returns (GetTransactionLinkResponse);
+}
+
+message GetTransactionLinkRequest {
+  string swap_id = 1;
+}
+
+message GetTransactionLinkResponse {
+  string link = 1;
+}

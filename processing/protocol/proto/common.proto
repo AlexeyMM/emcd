@@ -1,0 +1,48 @@
+syntax = "proto3";
+
+package common;
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "code.emcdtech.com/b2b/processing/protocol/commonpb";
+
+message Transaction {
+  string hash = 1;
+  string amount = 2;
+  string address = 3;
+  bool is_confirmed = 4;
+  google.protobuf.Timestamp created_at = 5;
+}
+
+message Invoice {
+  string id = 1;
+  string external_id = 2; // payment id from merchant system
+  string title = 3;
+  string description = 4;
+  google.protobuf.Timestamp expires_at = 5;
+  string coin_id = 6; // only USDT for now
+  string network_id = 7;
+  string payment_amount = 8;
+  string paid_amount = 9; // useful for partially paid invoice
+  string buyer_email = 10;
+  string checkout_url = 11; // where to redirect after payment is done
+
+  enum InvoiceStatus {
+    UNKNOWN = 0;
+    WAITING_FOR_DEPOSIT = 1;
+    PARTIALLY_PAID = 2;
+    PAYMENT_ACCEPTED = 3; // we have the money, haven't transferred them to merchant yet
+    FINISHED = 4; // merchant has received the money
+
+    CANCELLED = 5; // by merchant or by client but in an orderly manner, nothing criminal
+    EXPIRED = 6;
+  }
+  InvoiceStatus status = 12;
+  string deposit_address = 13;
+  string buyer_fee = 14;
+  string merchant_fee = 15;
+  string required_payment_amount = 16; // this is how much a buyer pays
+  repeated Transaction transactions = 17;
+  google.protobuf.Timestamp created_at = 18;
+  google.protobuf.Timestamp finished_at = 19;
+}

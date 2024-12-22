@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+package admin;
+
+option go_package = "code.emcdtech.com/b2b/processing/protocol/adminpb";
+import "protocol/3rd-party/protovalidate/validate.proto";
+
+service MerchantAdminService {
+  rpc CreateMerchant(CreateMerchantRequest) returns (CreateMerchantResponse);
+}
+
+message MerchantTariff {
+  string upper_fee = 1 [(buf.validate.field).cel = {
+    id: "upper_fee.decimal",
+    message: "Upper fee must be positive decimal",
+    expression: "this.matches('^\\\\d+(\\\\.\\\\d+)?$')"
+  }]; // positive decimal
+  string lower_fee = 2 [(buf.validate.field).cel = {
+    id: "decimal.lower_fee",
+    message: "Lower_fee must be positive decimal",
+    expression: "this.matches('^\\\\d+(\\\\.\\\\d+)?$')"
+  }]; // positive decimal
+  string min_pay = 3 [(buf.validate.field).cel = {
+    id: "decimal.min_pay",
+    message: "Min pay must be positive decimal",
+    expression: "this.matches('^\\\\d+(\\\\.\\\\d+)?$')"
+  }]; // positive decimal
+  string max_pay = 4 [(buf.validate.field).cel = {
+    id: "decimal.max_pay",
+    message: "Max pay must be positive decimal",
+    expression: "this.matches('^\\\\d+(\\\\.\\\\d+)?$')"
+  }]; // positive decimal
+}
+
+message CreateMerchantRequest {
+  string user_id = 1 [(buf.validate.field).string.uuid = true];
+  MerchantTariff tariff = 2 [(buf.validate.field).required = true];
+}
+
+message CreateMerchantResponse {}

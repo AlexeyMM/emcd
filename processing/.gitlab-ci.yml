@@ -1,0 +1,47 @@
+include:
+  - project: 'ci-tools/templates'
+    file:
+      - 'build/docker-build.yml'
+      - 'deploy/docker-deploy.yml'
+      - 'deploy/argo.yml'
+      - 'tests/go-lint.yml'
+      - 'deploy/migrate.yml'
+
+lint_tests:
+  extends: .template_lint_tests
+
+
+build_branch:
+  extends: .template_branch_build
+  variables:
+    DOCKER_BUILD_ARG: 'SWAGGER=true'
+
+
+migrate_dev:
+  extends: .template_migrate_dev
+deploy_dev:
+  extends: .argo_template_deploy_dev
+  variables:
+    ARGO_SERVICE_NAME: processing,processing-coinwatch-consumer,processing-workers
+
+
+migrate_stage:
+  extends: .template_migrate_stage
+deploy_stage:
+  extends: .argo_template_deploy_stage
+  variables:
+    ARGO_SERVICE_NAME: processing,processing-coinwatch-consumer,processing-workers
+
+
+build_tag:
+  extends: .template_tag_build
+
+migrate_prod:
+  extends: .template_migrate_prod
+deploy_prod:
+  extends: .template_deploy_prod
+  variables:
+    ARGO_SERVICE_NAME: processing,processing-coinwatch-consumer,processing-workers
+
+restart_prod_manual:
+  extends: .template_restart_prod

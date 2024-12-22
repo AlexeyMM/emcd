@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package swapCoin;
+
+option go_package = "code.emcdtech.com/b2b/swap/protocol/swapCoin;swapCoin";
+
+service SwapCoinService {
+  rpc GetAll(GetAllRequest) returns (GetAllResponse);
+}
+
+message Network {
+  string title = 1;
+  int32 accuracy = 2;
+  bool withdraw_supported = 3;
+}
+
+message Coin {
+  string title = 1;
+  repeated Network networks = 2;
+  string icon_url = 3;
+}
+
+message GetAllRequest {}
+
+message GetAllResponse {
+  repeated Coin coins = 1;
+}

@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  postgres-swap:
+    image: postgres:14.7
+    restart: always
+    ports:
+      - "5434:5432"
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: swap
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-U", "user", "-d", "swap" ]
+      interval: 1s
+      timeout: 5s
+      retries: 10
+
+  flyway-profile:
+    image: flyway/flyway:latest
+    command:
+      -url=jdbc:postgresql://postgres-swap:5432/swap -user=user -password=password -validateMigrationNaming="true" -connectRetries=60 migrate
+    volumes:
+      - ../../migrations:/flyway/sql
+    depends_on:
+      postgres-swap:
+        condition: service_healthy
+
+networks:
+  default:
+    name: network-swap-service
