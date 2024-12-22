@@ -1,0 +1,42 @@
+include:
+  - project: 'ci-tools/templates'
+    file: 'build/docker-build.yml'
+  - project: 'ci-tools/templates'
+    file: 'deploy/docker-deploy.yml'
+  - project: 'ci-tools/templates'
+    file: 'deploy/argo.yml'
+  - project: 'ci-tools/templates'
+    file: 'tests/go-lint.yml'
+  - project: 'ci-tools/templates'
+    file: 'deploy/migrate.yml'
+  - project: 'ci-tools/templates'
+    file: 'tests/go-unit.yml'
+
+lint_tests:
+  extends: .template_lint_tests
+
+unit_tests:
+  extends: .template_unit_tests
+
+build_branch:
+  extends: .template_branch_build
+
+
+migrate_dev:
+  extends: .template_migrate_dev
+deploy_dev:
+  extends: .argo_template_deploy_dev
+
+migrate_stage:
+  extends: .template_migrate_stage
+deploy_stage:
+  extends: .argo_template_deploy_stage
+
+
+build_tag:
+  extends: .template_tag_build
+
+migrate_prod:
+  extends: .template_migrate_prod
+deploy_prod:
+  extends: .template_deploy_prod

@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package accounting;
+
+option go_package = "/accounting";
+
+import "google/protobuf/descriptor.proto";
+import "protocol/accounting/accounting.proto";
+
+
+message Kafka {
+  string topic = 1; // именование топика в кафке
+}
+
+extend google.protobuf.MessageOptions {
+  Kafka kafka = 50001;
+}
+
+// Событие создания транзакции.
+message TransactionCreatedEvent {
+  option (kafka).topic = "emcd.accounting.public.transaction-created";
+  Transaction transaction = 1;
+}

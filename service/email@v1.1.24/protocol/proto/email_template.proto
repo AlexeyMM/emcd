@@ -1,0 +1,88 @@
+syntax = "proto3";
+
+package email;
+option go_package = "code.emcdtech.com/emcd/service/email/protocol/email;email";
+
+// EmailTemplateService сервис по работе с шаблонами писем
+service EmailTemplateService {
+  rpc CreateEmailTemplate(CreateEmailTemplateRequest) returns (CreateEmailTemplateResponse) {}
+  rpc GetEmailTemplate(GetEmailTemplateRequest) returns (GetEmailTemplateResponse) {}
+  rpc UpdateEmailTemplate(UpdateEmailTemplateRequest) returns (UpdateEmailTemplateResponse) {}
+  rpc DeleteEmailTemplate(DeleteEmailTemplateRequest) returns (DeleteEmailTemplateResponse) {}
+  rpc ListEmailTemplate(ListEmailTemplateRequest) returns (ListEmailTemplateResponse) {}
+}
+
+enum TemplateType {
+  Unknown = 0;
+  WorkerChangedState = 1;
+  PasswordRestoration = 2;
+  WalletChangedAddress = 3;
+  Register = 4;
+  UserHashrateDecreased = 5;
+  Mobile2faOff = 6;
+  Mobile2faOn = 7;
+  ChangePassword = 8;
+  DeletePhone = 9;
+  ReferralRewardPayouts = 10;
+  WorkerReport = 11;
+  SwapSupportMessage = 12;
+  SwapMessage = 13;
+  SwapSuccessful = 14;
+  IncomeReport = 15;
+  GoggleTwoFaOn = 16;
+  GoggleTwoFaOff = 17;
+  ChangeEmail = 18;
+  PayoutReport = 19;
+}
+
+
+message EmailTemplate {
+  string white_label_id = 1;
+  string language = 2;
+  TemplateType type = 3;
+  string template = 4;
+  string subject = 5;
+  string footer = 6;
+}
+
+message CreateEmailTemplateRequest {
+  EmailTemplate template = 1;
+}
+
+message CreateEmailTemplateResponse {
+}
+
+message GetEmailTemplateRequest {
+  string white_label_id = 1;
+  string language = 2;
+  TemplateType type = 3;
+}
+
+message GetEmailTemplateResponse {
+  EmailTemplate template = 1;
+}
+
+message UpdateEmailTemplateRequest {
+  EmailTemplate template = 1;
+}
+
+message UpdateEmailTemplateResponse {
+}
+
+message DeleteEmailTemplateRequest {
+  string whiteLabelID = 1;
+  string language = 2;
+  TemplateType type = 3;
+}
+
+message DeleteEmailTemplateResponse {
+}
+
+message ListEmailTemplateRequest {
+  string page_token = 1;
+}
+
+message ListEmailTemplateResponse {
+  string next_page_token = 1;
+  repeated EmailTemplate templates = 2;
+}

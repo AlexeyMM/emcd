@@ -1,0 +1,10 @@
+syntax = "proto3";
+option go_package = "code.emcdtech.com/emcd/service/error/proto;proto";
+
+message TestRequest {
+  optional string user_id = 1;
+}
+
+message TestRequestStatic {
+  string user_id = 1;
+}

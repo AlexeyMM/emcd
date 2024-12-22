@@ -1,0 +1,10 @@
+with-expecter: True
+dir: mocks/{{ replaceAll .InterfaceDirRelative "internal" "internal_"}}
+mockname: "Mock{{.InterfaceName}}"
+outpkg: "{{.PackageName}}"
+filename: "{{.InterfaceName|snakecase}}.go"
+all: True
+packages:
+  code.emcdtech.com/emcd/service/accounting:
+    config:
+      recursive: True

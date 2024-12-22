@@ -1,0 +1,1 @@
+ALTER TABLE mailgun_settings ADD COLUMN api_base text;

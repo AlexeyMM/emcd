@@ -1,0 +1,2 @@
+ALTER TABLE frontend_configs
+    ADD COLUMN title VARCHAR NOT NULL DEFAULT '';

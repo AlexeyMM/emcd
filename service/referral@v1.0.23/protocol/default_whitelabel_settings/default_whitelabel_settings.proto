@@ -1,0 +1,95 @@
+syntax = "proto3";
+package default_whitelabel_settings;
+option go_package = "code.emcdtech.com/emcd/service/referral/protocol/default_whitelabel_settings;default_whitelabel_settings";
+
+import "google/protobuf/timestamp.proto";
+
+service DefaultWhitelabelSettingsService {
+  rpc Create(CreateRequest) returns (CreateResponse);
+  rpc Update(UpdateRequest) returns (UpdateResponse);
+  rpc Delete(DeleteRequest) returns (DeleteResponse);
+  rpc GetAll(GetAllRequest) returns (GetAllResponse);
+  rpc GetAllWithoutPagination(GetAllWithoutPaginationRequest) returns (GetAllWithoutPaginationResponse) {}
+  rpc GetV2(GetV2Request) returns (GetV2Response) {}
+  rpc Get(GetRequest) returns (GetResponse);
+}
+
+message Settings {
+  string whitelabel_id = 1;
+  string product = 2;
+  string coin = 3;
+  string fee = 4;
+  string referral_fee = 5;
+  google.protobuf.Timestamp created_at = 6;
+}
+
+message CreateRequest {
+  SettingsV2 settings = 1;
+}
+
+message CreateResponse {}
+
+message UpdateRequest {
+  SettingsV2 settings = 1;
+}
+
+message UpdateResponse {}
+
+message DeleteRequest {
+  string whitelabel_id = 1;
+  string product = 2;
+  string coin = 3;
+}
+
+message DeleteResponse {}
+
+message GetAllRequest {
+  int32 skip = 1;
+  int32 take = 2;
+  optional string coin=3;
+  optional string product=4;
+}
+
+message GetAllResponse {
+  repeated SettingsV2 list = 1;
+  int32 total_count = 2;
+}
+
+
+message GetAllWithoutPaginationRequest {
+  optional string coin=1;
+  optional string product=2;
+}
+
+message GetAllWithoutPaginationResponse {
+  repeated  SettingsV2 list=1;
+}
+
+message SettingsV2 {
+  string whitelabel_id = 1;
+  string product = 2;
+  string coin = 3;
+  string fee = 4;
+  string referral_fee = 5;
+  google.protobuf.Timestamp created_at = 6;
+  string whitelabel_fee=7;
+}
+
+message GetV2Request {
+  string whitelabel_id=1;
+}
+
+message GetV2Response {
+  repeated SettingsV2 settings=1;
+}
+
+message GetRequest {
+  string whitelabel_id = 1;
+  string product = 2;
+  string coin = 3;
+}
+
+message GetResponse {
+  SettingsV2 settings = 1;
+}
+

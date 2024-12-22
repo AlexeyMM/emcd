@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  postgres:
+    container_name: postgres-referral
+    image: postgres:16.1
+    restart: always
+    ports:
+      - "5438:5432"
+    environment:
+      POSTGRES_DB: referral
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-U", "user", "-d", "referral" ]
+      interval: 1s
+      timeout: 5s
+      retries: 10
+
+  flyway:
+    container_name: flyway-referral
+    image: flyway/flyway:latest
+    command:
+      -url=jdbc:postgresql://postgres-referral:5432/referral -user=user -password=password -validateMigrationNaming="true" -connectRetries=60 migrate
+    volumes:
+      - ../../migrations:/flyway/sql
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  vault:
+    container_name: vault-referral
+    image: hashicorp/vault:latest
+    environment:
+      VAULT_DEV_ROOT_TOKEN_ID: testtoken
+    ports:
+      - "8200:8200"
+    privileged: true
+
+networks:
+  default:
+    name: network-referral-service

@@ -1,0 +1,730 @@
+syntax = "proto3";
+
+package profile;
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "code.emcdtech.com/emcd/service/profile/protocol/profile;profile";
+
+service ProfileService {
+  rpc Create(CreateRequest) returns (CreateResponse) {}
+  rpc SaveV3(SaveV3Request) returns (SaveV3Response) {}
+  rpc GetByUserID(GetByUserIDRequest) returns (GetByUserIDResponse) {}
+  rpc GetByUserIDV2(GetByUserIDV2Request) returns (GetByUserIDV2Response) {}
+  rpc GetUserIDByOldID(GetUserIDByOldIDRequest) returns (GetUserIDByOldIDResponse) {}
+  rpc UpdatePassword(UpdatePasswordRequest) returns (UpdatePasswordResponse) {}
+  rpc GetUserByEmailAndWl(GetUserByEmailAndWlRequest) returns (GetUserByEmailAndWlResponse) {}
+  rpc GetOldUserByEmailAndWl(GetOldUserByEmailAndWlRequest) returns (GetOldUserByEmailAndWlResponse) {}
+  rpc GetAllUsers(GetAllUsersRequest) returns (GetAllUsersResponse) {}
+  rpc GetAllUsersByWlID(GetAllUsersByWlIDRequest) returns (GetAllUsersByWlIDResponse) {}
+  rpc GetUserByApiKey(GetUserByApiKeyRequest) returns (GetUserByApiKeyResponse) {}
+  rpc GetOldByEmailAndWl(GetOldByEmailAndWlRequest) returns (GetOldByEmailAndWlResponse) {}
+  rpc GetOldByEmailAndWlV2(GetOldByEmailAndWlV2Request) returns (GetOldByEmailAndWlV2Response) {}
+  rpc GetSuspended(GetSuspendedRequest) returns (GetSuspendedResponse) {}
+  rpc SetSuspended(SetSuspendedRequest) returns (SetSuspendedResponse) {}
+  rpc ChangeWalletAddress(ChangeWalletAddressRequest) returns (ChangeWalletAddressResponse) {}
+  rpc UpdateMinPay(UpdateMinPayRequest) returns (UpdateMinPayResponse) {}
+  rpc ChangeWalletAddressConfirm(ChangeWalletAddressConfirmRequest) returns (ChangeWalletAddressConfirmResponse) {}
+  rpc UpdateUserIsActive(UpdateUserIsActiveRequest) returns (UpdateUserIsActiveResponse) {}
+  rpc GetUserIsActive(GetUserIsActiveRequest) returns (GetUserIsActiveResponse) {}
+  rpc GetKycStatus(GetKycStatusRequest) returns (GetKycStatusResponse) {}
+  rpc SetKycStatus(SetKycStatusRequest) returns (SetKycStatusResponse) {}
+  rpc InsertKycHistory(InsertKycHistoryRequest) returns (InsertKycHistoryResponse) {}
+  rpc CheckAppleAccount(CheckAppleAccountRequest) returns (CheckAppleAccountResponse) {}
+  rpc SaveNotificationSettings(SaveNotificationSettingsRequest) returns (SaveNotificationSettingsResponse) {}
+  rpc GetNotificationSettings(GetNotificationSettingsRequest) returns (GetNotificationSettingsResponse) {}
+  rpc RelatedUsers(RelatedUsersRequest) returns (RelatedUsersResponse) {}
+  rpc GetAllSubUsers(GetAllSubUsersRequest) returns (GetAllSubUsersResponse) {}
+  rpc GetAllUserIDsByUsername(GetAllUserIDsByUsernameRequest) returns (GetAllUserIDsByUsernameResponse) {}
+  rpc GetReferrals(GetReferralsRequest) returns (GetReferralsResponse) {}
+  rpc GetUsernamesByIDs(GetUsernamesByIDsRequest) returns (GetUsernamesByIDsResponse) {}
+  rpc GetEmailsByIDs(GetEmailsByIDsRequest) returns (GetEmailsByIDsResponse) {}
+  rpc SafeDeleteByID(SafeDeleteByIDRequest) returns (SafeDeleteByIDResponse) {}
+  rpc SaveV4(SaveV4Request) returns (SaveV4Response) {}
+  rpc GetByUsernames(GetByUsernamesRequest) returns (GetByUsernamesResponse) {}
+  rpc UpdateRefID(UpdateRefIDRequest) returns (UpdateRefIDResponse) {}
+  rpc GetFlagReferralLinkGenerated(GetFlagReferralLinkGeneratedRequest) returns (GetFlagReferralLinkGeneratedResponse) {}
+  rpc SetFlagReferralLinkGenerated(SetFlagReferralLinkGeneratedRequest) returns (google.protobuf.Empty) {}
+  rpc UpdateProfile(UpdateProfileRequest) returns (UpdateProfileResponse) {}
+  rpc SetTimezone(SetTimezoneRequest) returns (SetTimezoneResponse) {}
+  rpc SetLanguage(SetLanguageRequest) returns (SetLanguageResponse) {}
+  rpc GetAddresses(GetAddressesRequest) returns (GetAddressesResponse) {}
+  rpc GetUserByTg(GetUserByTgRequest) returns (GetUserByTgResponse) {}
+
+  rpc CreateAPIKey(CreateAPIKeyRequest) returns (CreateAPIKeyResponse) {}
+  rpc GetAPIKey(GetAPIKeyRequest) returns (GetAPIKeyResponse) {}
+  rpc DeleteAPIKey(DeleteAPIKeyRequest) returns (DeleteAPIKeyResponse) {}
+
+  rpc GetNoPayStatus(GetNoPayStatusRequest) returns (GetNoPayStatusResponse) {}
+  rpc UpdateNoPay(UpdateNoPayRequest) returns (UpdateNoPayResponse) {}
+  rpc CancelNoPayJob(CancelNoPayJobRequest) returns (CancelNoPayJobResponse) {}
+
+  // GetUsersWithWL returns count of user with wl uuid and users names
+  rpc GetUsersWithWL(GetUsersWithWLRequest) returns (GetUsersWithWLResponse) {}
+  // GetUserByUUIDs get user by their uuids
+  rpc GetUsersByUUIDs(GetUsersByUUIDsRequest) returns (GetUsersByUUIDsResponse) {}
+
+  // GetByUsernamesForReferrals in this RPC call not all field fill cause optimization purpose.
+  rpc GetByUsernamesForReferrals(GetByUsernamesForReferralsRequest) returns (stream GetByUsernamesForReferralsResponse) {}
+
+  rpc CreateSubUser(CreateSubUserRequest) returns (CreateSubUserResponse) {}
+  rpc SetUserAttributes(SetUserAttributesRequest) returns (google.protobuf.Empty) {}
+
+  rpc CreateProfile(CreateProfileRequest) returns (CreateProfileResponse) {}
+
+  // GetUserBySegmentID получения данных пользователя по segment ID
+  rpc GetUserBySegmentID(GetUserBySegmentIDRequest) returns (GetUserBySegmentIDResponse) {}
+
+  rpc GetOldIDByID(GetOldIDByIDRequest) returns (GetOldIDByIDResponse) {}
+  rpc GetOrCreateSecretKey(GetOrCreateSecretKeyRequest) returns (SecretKeyResponse) {}
+  rpc CheckSignature(Signature) returns (SignatureResponse) {}
+}
+
+message GetUserBySegmentIDRequest {
+  int32 segment_id = 1;
+}
+
+message GetUserBySegmentIDResponse {
+  int32 user_id = 1;
+  string user_uuid = 2;
+  string user_name = 3;
+  string email = 4;
+}
+
+message CreateProfileRequest {
+  string username = 1;
+  string email = 2;
+  string password = 3;
+  int32 ref_id = 4;
+  string ref_uuid = 5;
+  string white_label_uuid = 6;
+  string apple_id = 7;
+  string language = 8;
+  string telegram_id = 9;
+  string telegram_user_name = 10;
+}
+
+message CreateProfileResponse {
+  string user_uuid = 1;
+  int32 user_id = 2;
+}
+message GetByUsernamesForReferralsRequest {
+  repeated string usernames = 1;
+}
+
+message GetByUsernamesForReferralsResponse {
+  repeated Profile profile = 1;
+}
+
+message GetUsersByUUIDsRequest {
+  repeated string users_uuids = 1;
+}
+
+message GetUsersByUUIDsResponse {
+  repeated ShortUserInfo users = 1;
+}
+
+message GetUsersWithWLRequest {
+  string wl_uuid = 1;
+  int32 offset = 2;
+  int32 limit = 3;
+}
+
+message GetUsersWithWLResponse {
+  repeated ShortUserInfo users = 1;
+  int64 total = 2;
+}
+
+message ShortUserInfo {
+  string user_name = 1;
+  string email = 2;
+  google.protobuf.Timestamp created_at = 3;
+  string user_uuid = 4;
+}
+
+message UpdateNoPayRequest {
+  string user_uuid = 1;
+}
+
+message UpdateNoPayResponse {}
+
+message CancelNoPayJobRequest {
+  string user_uuid = 1;
+}
+
+message CancelNoPayJobResponse {}
+
+message GetNoPayStatusRequest {
+  string user_uuid = 1;
+}
+
+message GetNoPayStatusResponse {
+  bool status = 1;
+  google.protobuf.Timestamp date_before = 2;
+}
+
+message CreateAPIKeyRequest {
+  string user_uuid = 1;
+  string parent_uuid = 2;
+  string ip = 3;
+}
+
+message CreateAPIKeyResponse {
+  string api_key = 1;
+}
+
+message GetOrCreateSecretKeyRequest {
+  string user_uuid = 1;
+  string parent_uuid = 2;
+  string ip = 3;
+}
+
+message SecretKeyResponse {
+  string secret_key = 1;
+}
+
+message Signature {
+  string signature = 1;
+  string user_uuid = 2;
+  string parent_uuid = 3;
+  string ip = 4;
+  int64 nonce = 5;
+}
+
+message SignatureResponse {
+  bool check = 1;
+}
+
+message DeleteAPIKeyRequest {
+  string user_uuid = 1;
+  string parent_uuid = 2;
+  string ip = 3;
+}
+
+message DeleteAPIKeyResponse {}
+
+message GetAPIKeyRequest {
+  string user_uuid = 1;
+  string parent_uuid = 2;
+  string ip = 3;
+}
+
+message GetAPIKeyResponse {
+  string api_key = 1;
+}
+
+message CreateRequest {
+  Profile profile = 1;
+}
+
+message CreateResponse {
+  int32 userID = 1;
+}
+
+message Profile {
+  User user = 1;
+  reserved 2;
+}
+
+message ProfileV2 {
+  UserV2 user = 1;
+  reserved 2;
+}
+
+message ProfileV3 {
+  User user = 1;
+  reserved 2;
+}
+
+message ProfileV4 {
+  UserV2 user = 1;
+  reserved 2;
+}
+
+message User {
+  reserved 10;
+  reserved "phone";
+
+  string ID = 1;
+  string username = 2;
+  bool vip = 3;
+  int32 segmentID = 4;
+  int32 refID = 5;
+  string email = 6;
+  string password = 7;
+  google.protobuf.Timestamp createdAt = 8;
+  string whiteLabelID = 9;
+  string apiKey = 11;
+  string role = 12 [deprecated = true];
+  int32 oldID = 13;
+  bool suspended = 14;
+  string parent_id = 15;
+  bool is_active = 16;
+  string new_ref_id = 17;
+  string language = 18;
+  optional string poolType = 19;
+  optional int32 old_parent_id = 20;
+  string tg_id = 21;
+  string tg_username = 22;
+  bool is_ambassador = 23;
+}
+
+message UserV2 {
+  reserved 10;
+  reserved "phone";
+
+  string ID = 1;
+  string username = 2;
+  bool vip = 3;
+  int32 segmentID = 4;
+  int32 refID = 5;
+  string email = 6;
+  string password = 7;
+  google.protobuf.Timestamp createdAt = 8;
+  string whiteLabelID = 9;
+  string apiKey = 11;
+  string role = 12 [deprecated = true];
+  int32 oldID = 13;
+  bool is_active = 14;
+  string apple_id = 15;
+  string parent_id = 16;
+  string new_ref_id = 17;
+  optional string pool_type = 18;
+  string language = 19;
+  optional int32 old_parent_id = 20;
+  string tg_id = 21;
+  string tg_username = 22;
+}
+
+message SaveV3Request {
+  ProfileV4 profile = 1;
+}
+
+message SaveV3Response {
+  int32 userID = 1;
+}
+
+message GetByUserIDRequest {
+  string userID = 1;
+}
+
+message GetByUserIDResponse {
+  Profile profile = 1;
+}
+
+message GetByUserIDV2Request {
+  string userID = 1;
+}
+
+message GetByUserIDV2Response {
+  ProfileV2 profile = 1;
+}
+
+message GetUserIDByOldIDRequest {
+  int32 old_id = 1;
+}
+
+message GetUserIDByOldIDResponse {
+  string userID = 1;
+}
+
+message GetByUsernamesRequest {
+  repeated string usernames = 1;
+}
+
+message GetByUsernamesResponse {
+  repeated Profile profile = 1;
+}
+
+message UpdatePasswordRequest {
+  string email = 1;
+  string password = 2;
+  string whiteLabelID = 3;
+}
+
+message UpdatePasswordResponse {}
+
+message GetUserByEmailAndWlRequest {
+  string email = 1;
+  string whiteLabelID = 2;
+}
+
+message GetUserByEmailAndWlResponse {
+  User user = 1;
+}
+
+message GetOldUserByEmailAndWlRequest {
+  string email = 1;
+  string whiteLabelID = 2;
+}
+
+message GetOldUserByEmailAndWlResponse {
+  User user = 1;
+}
+
+message GetAllUsersRequest {
+  int32 take = 1;
+  int32 skip = 2;
+  Sort sort = 3;
+  string searchEmail = 4;
+}
+
+message Sort {
+  string field = 1;
+  bool asc = 2;
+}
+
+message GetAllUsersResponse {
+  repeated User users = 1;
+  int32 totalCount = 2;
+}
+
+message GetAllUsersByWlIDRequest {
+  int32 take = 1;
+  int32 skip = 2;
+  Sort sort = 3;
+  string searchEmail = 4;
+  string whiteLabelID = 5;
+}
+
+message GetAllUsersByWlIDResponse {
+  repeated User users = 1;
+  int32 totalCount = 2;
+}
+
+message GetUserByApiKeyRequest {
+  string apiKey = 1;
+}
+
+message GetUserByApiKeyResponse {
+  User user = 1;
+}
+
+message GetOldByEmailAndWlRequest {
+  string email = 1;
+  string whiteLabelID = 2;
+}
+
+message GetOldByEmailAndWlResponse {
+  Profile profile = 1;
+}
+
+message GetOldByEmailAndWlV2Request {
+  string email = 1;
+  string whiteLabelID = 2;
+}
+
+message GetOldByEmailAndWlV2Response {
+  ProfileV3 profile = 1;
+}
+
+message GetSuspendedRequest {
+  string user_id = 1;
+}
+
+message GetSuspendedResponse {
+  bool suspended = 1;
+}
+
+message SetSuspendedRequest {
+  repeated string user_ids = 1;
+  bool suspended = 2;
+}
+
+message SetSuspendedResponse {}
+
+message ChangeWalletAddressRequest {
+  int32 user_id = 1;
+  string username = 2;
+  string ip = 3;
+  string coin = 4;
+  string address = 5;
+  string domain = 6;
+}
+
+message ChangeWalletAddressResponse {}
+
+message UpdateMinPayRequest {
+  int32 user_id = 1;
+  string coin = 2;
+  float value = 3;
+}
+
+message UpdateMinPayResponse {}
+
+message ChangeWalletAddressConfirmRequest {
+  int32 user_id = 1;
+  string token = 2;
+}
+
+message ChangeWalletAddressConfirmResponse {
+  string address = 1;
+  int32 user_id = 2;
+  string coin_id = 3;
+}
+
+message UpdateUserIsActiveRequest {
+  string email = 1;
+  bool active = 2;
+}
+
+message UpdateUserIsActiveResponse {}
+
+message GetUserIsActiveRequest {
+  string user_id = 1;
+}
+
+message GetUserIsActiveResponse {
+  bool is_active = 1;
+}
+
+enum KycStatus {
+  Unknown = 0;
+  Processing = 1;
+  Approved = 2;
+  Declined = 3;
+}
+
+message GetKycStatusRequest {
+  int32 user_id = 1;
+}
+
+message GetKycStatusResponse {
+  google.protobuf.Timestamp retry_after = 1;
+  int32 delay_minutes = 2;
+  KycStatus status = 3;
+  bool is_allowed = 4;
+  string overall = 5;
+  string doc_check = 6;
+  string face_check = 7;
+}
+
+message SetKycStatusRequest {
+  int32 user_id = 1;
+  KycStatus status = 2;
+}
+
+message SetKycStatusResponse {}
+
+message InsertKycHistoryRequest {
+  int32 user_id = 1;
+  bytes data = 2;
+}
+
+message InsertKycHistoryResponse {}
+
+message CheckAppleAccountRequest {
+  string apple_id = 1;
+  string email = 2;
+}
+
+message CheckAppleAccountResponse {
+  bool registration_required = 1;
+  string email = 2;
+}
+
+message NotificationSettings {
+  string email = 1;
+  string language = 2;
+  bool is_tg_notifications_on = 3;
+  int64 tg_id = 4;
+  string whitelabel_id = 5;
+  bool is_email_notifications_on = 6;
+  bool is_push_notifications_on = 7;
+}
+
+message SaveNotificationSettingsRequest {
+  string user_id = 1;
+  bool is_tg_notifications_on = 2;
+  bool is_email_notifications_on = 3;
+  int64 tg_id = 4;
+  bool is_push_notifications_on = 5;
+}
+
+message SaveNotificationSettingsResponse {}
+
+message GetNotificationSettingsRequest {
+  string user_id = 1;
+}
+
+message GetNotificationSettingsResponse {
+  NotificationSettings settings = 1;
+}
+
+message RelatedUsersRequest {
+  string first_id = 1;
+  string second_id = 2;
+}
+
+message RelatedUsersResponse {
+  bool related = 1;
+}
+
+message GetAllSubUsersRequest {
+  string user_id = 1;
+}
+
+message GetAllSubUsersResponse {
+  message Subs {
+    string user_id = 1;
+    string username = 2;
+    int32 user_old_id = 3;
+  }
+  repeated Subs subs = 1;
+}
+
+message GetAllUserIDsByUsernameRequest {}
+
+message GetAllUserIDsByUsernameResponse {
+  map<string, string> ids = 1;
+}
+
+message Referral {
+  string id = 1;
+  string username = 2;
+  string email = 3;
+  google.protobuf.Timestamp createdAt = 4;
+}
+
+message GetReferralsRequest {
+  string user_id = 1;
+  int32 skip = 2;
+  int32 take = 3;
+  Sort sort = 4;
+}
+
+message GetReferralsResponse {
+  repeated Referral referrals = 1;
+  int32 total_count = 2;
+}
+
+message GetUsernamesByIDsRequest {
+  repeated string user_ids = 1;
+}
+
+message GetUsernamesByIDsResponse {
+  map<string, string> usernames = 1;
+}
+
+message GetEmailsByIDsRequest {
+  repeated string user_ids = 1;
+}
+
+message GetEmailsByIDsResponse {
+  map<string, string> emails = 1;
+}
+
+message SafeDeleteByIDRequest {
+  string user_id = 1;
+}
+
+message SafeDeleteByIDResponse {}
+
+message SaveV4Request {
+  UserV2 user = 1;
+}
+
+message SaveV4Response {
+  int32 user_id = 1;
+}
+
+message UpdateRefIDRequest {
+  int32 oldUserID = 1;
+  string userID = 2;
+  int32 refID = 3;
+}
+
+message UpdateRefIDResponse {}
+
+message GetFlagReferralLinkGeneratedRequest {
+  string userID = 1;
+}
+
+message GetFlagReferralLinkGeneratedResponse {
+  bool value = 1;
+}
+
+message SetFlagReferralLinkGeneratedRequest {
+  string userID = 1;
+}
+
+message UpdateProfileRequest {
+  UserV2 user = 1;
+}
+
+message UpdateProfileResponse {}
+
+message SetTimezoneRequest {
+  string user_id = 1;
+  string timezone = 2;
+}
+
+message SetTimezoneResponse {}
+
+message SetLanguageRequest {
+  string user_id = 1;
+  string language = 2;
+}
+
+message SetLanguageResponse {}
+
+message Address {
+  string coin = 1;
+  string minpay = 2;
+  string wallet_address = 3;
+  string mining_address = 4;
+}
+
+message GetAddressesRequest {
+  string user_id = 1;
+}
+
+message GetAddressesResponse {
+  repeated Address addresses = 1;
+}
+
+message CoinAndAddress {
+  string coin = 1;
+  string address = 2;
+}
+
+message CreateSubUserRequest {
+  string parentUserUUID = 1;
+  string username = 2;
+  repeated CoinAndAddress addresses = 3;
+}
+
+message CreateSubUserResponse {
+  string newUserUUID = 1;
+  int32 oldID = 2;
+}
+
+message GetUserByTgRequest {
+  string tgID = 1;
+}
+
+message GetUserByTgResponse {
+  User user = 1;
+}
+
+message SetUserAttributesRequest {
+  string user_id = 1;
+
+  optional string username = 2;
+  optional string language = 3;
+  optional string parent_id = 4;
+  optional string whiteLabelID = 5;
+  optional bool was_referral_link_generated = 6;
+  optional bool is_ambassador = 7;
+  optional string poolType = 8;
+}
+
+message GetOldIDByIDRequest {
+  string id = 1;
+}
+
+message GetOldIDByIDResponse {
+  string new_id = 1;
+  int32 old_id = 2;
+}

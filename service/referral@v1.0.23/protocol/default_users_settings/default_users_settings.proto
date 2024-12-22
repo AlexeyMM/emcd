@@ -1,0 +1,62 @@
+syntax = "proto3";
+package default_users_settings;
+option go_package = "code.emcdtech.com/emcd/service/referral/protocol/default_users_settings;default_users_settings";
+
+import "google/protobuf/timestamp.proto";
+
+service DefaultUsersSettingsService {
+  // CreateUsersSettings создания реферальных настроек процентов рефоводу
+  rpc CreateUsersSettings(CreateUsersSettingsRequest) returns (CreateUsersSettingsResponse) {}
+  // UpdateUsersSettings обновление дефолтных настоек у рефовода
+  rpc UpdateUsersSettings(UpdateUsersSettingsRequest) returns (UpdateUsersSettingsResponse) {}
+  // GetUsersSettings возвращает реферальные настройки по пользователям, может вернуть только для 100 пользователей.
+  rpc GetUsersSettings(GetUsersSettingsRequest) returns (stream GetUsersSettingsResponse) {}
+}
+
+message UserSettings {
+  // user_uuid uuid рефовода
+  string user_uuid = 1;
+  repeated UserPreference settings = 2;
+}
+
+message UserPreference {
+  string product = 1;
+  string coin = 2;
+  // fee дефолтная комиссия
+  double fee = 3;
+  // referral_fee процент от дефолтной комиссии который идёт рефоводу, не может быть больше 100.
+  double referral_fee = 4;
+  // поля ниже нужны только в случае когда отдаём инф. о комиссия
+  google.protobuf.Timestamp created_at = 5;
+  google.protobuf.Timestamp updated_at = 6;
+}
+
+message CreateUsersSettingsRequest {
+  repeated UserSettings users = 1;
+}
+
+message CreateUsersSettingsResponse {}
+
+message UpdateUsersSettingsRequest {
+  // update_mode:
+  // пустое значение - обновляем настройки только у реферала, не трогая его рефчиков
+  // all - обновляем настройки только у реферала и у всех его рефчиков учитывая промокоды, если есть промокод то не обновляет.
+  // force_all - обновляем настройки только у реферала и у всех его рефчиков, не учитывая промокоды рефчиков.
+  string update_mode = 1;
+  repeated UserSettings users = 2;
+}
+
+message UpdateUsersSettingsResponse{}
+
+message GetUsersSettingsRequest {
+  // user_uuids список пользователей, не больше 100 можно запросить
+  repeated string user_uuids = 1;
+  // products список продуктов, если продукты не указано то по всем будет запрос
+  repeated string products = 2;
+  // coins список монет, если монеты не указаны будет выбора по всем
+  repeated string coins = 3;
+}
+
+message GetUsersSettingsResponse {
+  repeated UserSettings users = 1;
+}

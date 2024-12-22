@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package referral;
+option go_package = "/referral";
+
+service AccountingReferralService {
+  // Statistics of income by referral programs
+  rpc GetReferralsStatistic(GetReferralsStatisticRequest) returns (GetReferralsStatisticResponse);
+}
+
+
+message GetReferralsStatisticRequest {
+    string user_id=1;
+    repeated int64 transaction_types_ids = 2;
+}
+
+message ReferralIncome {
+    int64 coin_id=1;
+    string amount=2;
+}
+
+message GetReferralsStatisticResponse {
+    repeated ReferralIncome this_month_income=1;
+    repeated ReferralIncome yesterday_income=2;
+}

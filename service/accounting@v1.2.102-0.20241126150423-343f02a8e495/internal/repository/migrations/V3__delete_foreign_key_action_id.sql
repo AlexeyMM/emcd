@@ -1,0 +1,2 @@
+ALTER TABLE emcd.transactions
+DROP CONSTRAINT transactions_action_id_fkey;

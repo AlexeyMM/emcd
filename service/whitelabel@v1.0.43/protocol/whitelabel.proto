@@ -1,0 +1,223 @@
+syntax = "proto3";
+
+package whitelabel;
+
+option go_package = "/whitelabel";
+
+
+service WhitelabelService {
+  rpc GetByID(GetByIDRequest) returns (GetByIDResponse) {}
+  rpc GetAll(GetAllRequest) returns (GetAllResponse) {}
+  rpc Create(CreateRequest) returns (CreateResponse) {}
+  rpc Update(UpdateRequest) returns (UpdateResponse) {}
+  rpc Delete(DeleteRequest) returns (DeleteResponse) {}
+  rpc GetBySegmentID(GetBySegmentIDRequest) returns (GetWLResponse) {}
+  rpc GetByUserID(GetByUserIDRequest) returns (GetWLResponse) {}
+  rpc GetByOrigin(GetByOriginRequest) returns (GetWLResponse) {}
+  rpc CheckByUserID(CheckByUserIDRequest) returns (CheckWLResponse) {}
+  rpc CheckByUserIDAndOrigin(CheckByUserIDAndOriginRequest) returns (CheckWLResponse) {}
+  rpc GetV2WLs(GetV2WLsRequest) returns (GetV2WLsResponse) {}
+  rpc GetConfigByOrigin(GetConfigByOriginRequest) returns (WLConfigResponse) {}
+  rpc SetConfigByRefID(SetConfigByRefIDRequest) returns (SetConfigByRefIDResponse) {}
+  rpc SetAllowOrigin(AllowOrigin) returns (SuccessResponse) {}
+  rpc GetAllowOrigins(EmptyRequest) returns (GetAllowOriginsResponse) {}
+  rpc SetStratum(Stratum) returns (SuccessResponse) {}
+  rpc GetFullByUserID(GetByUserIDRequest) returns (GetWLResponse) {}
+  rpc GetCoins(GetCoinsRequest) returns (GetCoinsResponse) {}
+  rpc AddCoin(AddCoinRequest) returns (AddCoinResponse) {}
+  rpc DeleteCoin(DeleteCoinRequest) returns (DeleteCoinResponse) {}
+  rpc GetStratumList(GetStratumListRequest) returns (GetStratumListResponse) {}
+}
+
+message WhiteLabel {
+  string id = 1;
+  int32 user_id = 2;
+  int32 segment_id = 3;
+  string origin = 4;
+  string prefix = 5;
+  string sender_email = 6;
+  string domain = 7;
+  string api_key = 8;
+  string url = 9;
+  int32  version = 10;
+  bool master_slave = 11;
+  double master_fee = 12;
+  bool is_two_fa_enabled = 13;
+  bool is_captcha_enabled = 14;
+  bool is_email_confirm_enabled = 15;
+}
+
+message GetByIDRequest {
+  string id = 1;
+}
+
+message GetByIDResponse {
+  WhiteLabel whiteLabel = 1;
+}
+
+message GetAllRequest {
+  int32 skip = 1;
+  int32 take = 2;
+  Sort sort = 3;
+}
+
+message Sort {
+  string field = 1;
+  bool asc = 2;
+}
+
+message Coin {
+  string coin_id = 1;
+  string wl_id = 2;
+}
+
+message GetCoinsRequest {
+  string WlId = 1;
+}
+
+message GetCoinsResponse {
+  repeated Coin coins = 1;
+}
+
+message AddCoinRequest {
+  Coin coin = 1;
+}
+
+message AddCoinResponse {
+}
+
+message DeleteCoinRequest {
+  Coin coin = 1;
+}
+
+message DeleteCoinResponse {
+}
+
+message GetAllResponse {
+  repeated WhiteLabel whiteLabels = 1;
+  int32 totalCount = 2;
+}
+message CreateRequest {
+  WhiteLabel whiteLabel = 1;
+}
+message CreateResponse {
+  string id = 1;
+}
+
+message UpdateRequest {
+  WhiteLabel whiteLabel = 1;
+}
+
+message UpdateResponse {}
+
+message DeleteRequest {
+  string id = 1;
+}
+
+message DeleteResponse {}
+
+message GetBySegmentIDRequest {
+  int32 segment_id = 1;
+}
+
+message GetByUserIDRequest {
+  int32 user_id = 1;
+}
+
+message GetByOriginRequest {
+  string origin = 1;
+}
+
+message CheckByUserIDRequest {
+  int32 user_id = 1;
+}
+
+message CheckByUserIDAndOriginRequest {
+  int32 user_id = 1;
+  string origin = 2;
+}
+
+message GetWLResponse {
+  WhiteLabel whiteLabel = 1;
+}
+
+message CheckWLResponse {
+  bool success = 1;
+}
+
+message GetV2WLsRequest {
+}
+
+message GetV2WLsResponse {
+  repeated WhiteLabel list = 1;
+}
+
+message GetConfigByOriginRequest {
+  string origin = 1;
+}
+
+message Stratum {
+  string ref_id = 1;
+  string coin = 2;
+  string region = 3;
+  string number = 4;
+  string url = 5;
+}
+
+message Config {
+  string ref_id = 1;
+  string origin = 2;
+  string media_id = 3;
+  string title = 4;
+  string logo = 5;
+  string favicon = 6;
+  double commission = 7;
+  repeated Stratum stratum_list = 8;
+  map<string, string> colors = 9;
+  string firmware_instruction = 10;
+  repeated string possible_langs = 11;
+  string lang = 12;
+  string whitelabel_id = 13;
+  bool is_two_fa_enabled = 14;
+  bool is_captcha_enabled = 15;
+  bool is_email_confirm_enabled = 16;
+  string prefix = 17;
+}
+
+message WLConfigResponse{
+  Config config = 1;
+}
+
+message SetConfigByRefIDRequest {
+  Config config = 1;
+}
+
+message SetConfigByRefIDResponse {
+  bool success = 1;
+}
+
+
+message AllowOrigin {
+  int32 user_id = 1;
+  string origin = 2;
+}
+
+message SuccessResponse {
+  bool success = 1;
+}
+
+
+message EmptyRequest {
+}
+
+message GetAllowOriginsResponse {
+  repeated AllowOrigin list = 1;
+}
+
+message GetStratumListRequest {
+  string whitelabel_id = 1;
+}
+
+message GetStratumListResponse {
+  repeated Stratum stratum_list = 1;
+}

@@ -1,0 +1,362 @@
+syntax = "proto3";
+
+package address;
+
+option go_package = "/address";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+
+///////////////////////////////////////////////////////
+//  service
+///////////////////////////////////////////////////////
+
+service AddressService {
+  // создать или получить адрес
+  rpc GetOrCreateAddress(CreateAddressRequest) returns (AddressResponse);
+  // получить адресс по uuid
+  rpc GetAddressByUuid(AddressUuid) returns (AddressResponse) {option deprecated = true;};
+  // получить адресс по строчному значение
+  rpc GetAddressByStr(AddressStrId) returns (AddressResponse);
+  // получить адреса по пользователю uuid
+  rpc GetAddressesByUserUuid(UserUuid) returns (AddressMultiResponse);
+  // получить старые адреса по фильту
+  rpc GetAddressesOldByFilter(AddressOldFilter) returns (AddressMultiResponse);
+  // получить новые адреса по фильту (is_processing == true, для процессинговых)
+  rpc GetAddressesNewByFilter(AddressNewFilter) returns (AddressMultiResponse);
+
+  // установить флаг is_dirty для адреса по строчнму значению
+  rpc CreateOrUpdateDirtyAddress(DirtyAddressForm) returns (DirtyAddressForm);
+  // получить флаг is_dirty для адресов
+  rpc GetDirtyAddressesByFilter(DirtyAddressFilter) returns (DirtyAddressMultiForm);
+
+  // создать процессинговый адрес
+  rpc CreateProcessingAddress(CreateProcessingAddressRequest) returns (AddressResponse);
+
+  // добавить или обновить персональный адрес
+  rpc AddOrUpdatePersonalAddress(CreatePersonalAddressRequest) returns (PersonalAddressResponse);
+  // удалить персональный адрес
+  rpc DeletePersonalAddress(DeletePersonalAddressRequest) returns (google.protobuf.Empty);
+  // получить персональные адреса по пользователю uuid
+  rpc GetPersonalAddressesByUserUuid(UserUuid) returns (PersonalAddressMultiResponse);
+  // получить персональные адреса по фильтру
+  rpc GetPersonalAddressesByFilter(AddressPersonalFilter) returns (PersonalAddressMultiResponse);
+}
+
+///////////////////////////////////////////////////////
+//  enum
+///////////////////////////////////////////////////////
+
+enum AddressType {
+  // прямая генерация с храннеием приватного ключа в базе ноды
+  ADDRESS_TYPE_DIRECT                                 = 0;
+  // наследованный адрес от мастер ключа
+  ADDRESS_TYPE_DERIVED                                = 1;
+  // адрес с приватным ключём на блокчейн-ноде без соли (старая схема)
+  ADDRESS_TYPE_BASED_NONE                             = 100[deprecated = true];
+  // адрес с приватным ключём на блокчейн-ноде с доступом через user_id соль (старая схема)
+  ADDRESS_TYPE_BASED_ID                               = 101[deprecated = true];
+  // мемо
+  ADDRESS_TYPE_MEMO                                   = 2;
+}
+
+
+
+///////////////////////////////////////////////////////
+//  form
+///////////////////////////////////////////////////////
+
+message DirtyAddressForm {
+  // адрес
+  string address                                      = 1;
+  // сеть
+  string network                                      = 2;
+  // флаг is_dirty (проверка AML)
+  bool is_dirty                                     = 3;
+}
+
+message DirtyAddressMultiForm {
+  // адреса
+  repeated DirtyAddressForm addresses                 = 1;
+}
+
+///////////////////////////////////////////////////////
+//  request
+///////////////////////////////////////////////////////
+
+message CreateAddressRequest {
+  // uuid пользователя
+  string user_uuid                                    = 1;
+  // сеть
+  string network                                      = 2;
+  // монета (если задана то только старый способ генерации)
+  optional string coin                                = 3[deprecated = true];
+}
+
+message CreateProcessingAddressRequest {
+  // uuid пользователя
+  string user_uuid                                    = 1;
+  // сеть
+  string network                                      = 2;
+  // процессинг uuid
+  string processing_uuid                              = 3;
+}
+
+message CreatePersonalAddressRequest {
+  // адрес
+  string address                                      = 1;
+  // uuid пользователя
+  string user_uuid                                    = 2;
+  // сеть
+  string network                                      = 3;
+  // минимальная выплата
+  optional double min_payout                          = 4;
+}
+
+message DeletePersonalAddressRequest {
+  // uuid пользователя
+  string user_uuid                                    = 1;
+  // сеть
+  string network                                      = 2;
+}
+
+///////////////////////////////////////////////////////
+//  id
+///////////////////////////////////////////////////////
+
+message AddressUuid {
+  // адрес uuid
+  string address_uuid                                 = 1;
+}
+
+message AddressStrId {
+  // адрес
+  string address                                      = 1;
+}
+
+message UserUuid {
+  // uuid пользователя
+  string user_uuid                                    = 1;
+}
+
+///////////////////////////////////////////////////////
+//  filter
+///////////////////////////////////////////////////////
+
+message AddressPagination {
+  // количество в запросе к бд
+  uint64 limit                                    = 1;
+  // сдвиг в запросе к бд
+  uint64 offset                                   = 2;
+}
+
+message AddressOldFilter {
+  // адрес uuid
+  optional string address_uuid                        = 1;
+  // адрес строчное значение
+  optional string address                             = 2;
+  // uuid пользователя
+  optional string user_uuid                           = 3;
+  // uuid пользователя
+  optional AddressType address_type                   = 4;
+  // сеть (для старой len == 1)
+  optional string network                             = 5;
+  // user_account_id для соли по старой схеме
+  optional int32 user_account_id                      = 6;
+  // монета (для старой)
+  optional string coin                                = 7;
+  // время создания
+  optional google.protobuf.Timestamp created_at_gt    = 8;
+  // пагинация
+  optional AddressPagination pagination               = 9;
+}
+
+message AddressNewFilter {
+  // адрес uuid
+  optional string address_uuid                        = 1;
+  // адрес строчное значение
+  optional string address                             = 2;
+  // uuid пользователя
+  optional string user_uuid                           = 3;
+  // uuid пользователя
+  optional AddressType address_type                   = 4;
+  // группа сети (обе схемы)
+  optional string network_group                       = 5;
+  // флаг процессинговые адресса
+  optional bool is_processing                         = 6;
+  // время создания
+  optional google.protobuf.Timestamp created_at_gt    = 7;
+  // пагинация
+  optional AddressPagination pagination               = 8;
+}
+
+message AddressPersonalFilter {
+  // адрес uuid
+  optional string address_uuid                        = 1;
+  // адрес строчное значение
+  optional string address                             = 2;
+  // uuid пользователя
+  optional string user_uuid                           = 3;
+  // сеть
+  optional string network                             = 4;
+  // флаг что удалён
+  optional bool is_deleted                            = 5;
+  // пагинация
+  optional AddressPagination pagination               = 6;
+}
+
+message DirtyAddressFilter {
+  // адрес строчное значение
+  optional string address                             = 1;
+  // сеть
+  optional string network                             = 2;
+}
+
+///////////////////////////////////////////////////////
+//  response
+///////////////////////////////////////////////////////
+
+//  AddressResponse message:
+//    CREATE TABLE address_old
+//    (
+//    id              UUID      NOT NULL, -- uuid identifier
+//    address         TEXT      NOT NULL, -- address
+//    user_uuid       UUID      NOT NULL, -- user (for tables unification)
+//    address_type    int4      NOT NULL, -- type of address generation
+//    created_at      TIMESTAMP NOT NULL, -- created date
+//
+//    network         TEXT      NOT NULL, -- network
+//    user_account_id int4      NOT NULL, -- wallets user account id
+//    coin            TEXT      NOT NULL, -- coin
+//
+//    CONSTRAINT address_old_network_user_account_id_idx UNIQUE (network, user_account_id),
+//    CONSTRAINT address_old_address_idx UNIQUE (address),
+//
+//    PRIMARY KEY (id)
+//    );
+//
+//    CREATE TABLE address
+//    (
+//    id            UUID      NOT NULL, -- uuid identifier
+//    address       TEXT      NOT NULL, -- address
+//    user_uuid     UUID      NOT NULL, -- user
+//    address_type  int4      NOT NULL, -- type of address generation
+//    created_at    TIMESTAMP NOT NULL, -- created date
+//
+//    network_group TEXT      NOT NULL, -- network group local identifier
+//
+//    CONSTRAINT address_user_uuid_network_group_idx UNIQUE (user_uuid, network_group),
+//    CONSTRAINT address_address_idx UNIQUE (address),
+//
+//    PRIMARY KEY (id)
+//    );
+//
+//    CREATE TABLE address_derived
+//    (
+//    address_uuid   uuid NOT NULL, -- address uuid
+//    network_group  TEXT NOT NULL, -- network group local identifier
+//    master_key_id  int4 NOT NULL, -- key id == 0 (reserved column)
+//    derived_offset int4 NOT NULL, -- offset of derived address
+//
+//    CONSTRAINT address_derived_helper_key_offset_network_idx UNIQUE (network_group, master_key_id, derived_offset),
+//    CONSTRAINT address_derived_uuid_fk FOREIGN KEY (address_uuid) REFERENCES address (id) ON DELETE CASCADE
+//
+//    );
+//
+//    CREATE INDEX address_address_old_address_offset_idx on address_old (user_uuid, network);
+//    CREATE INDEX address_address_old_address_idx ON address USING btree (address);
+//
+//    CREATE INDEX address_address_address_idx ON address USING btree (address);
+//
+message AddressResponse {
+  // адрес uuid
+  string address_uuid                                 = 1;
+  // адрес
+  string address                                      = 2;
+  // uuid пользователя
+  string user_uuid                                    = 3;
+  // тип генерации
+  AddressType address_type                            = 4;
+  // группа сети (обе схемы)
+  string network_group                                = 5;
+  // группа в зависимости от способа генерации
+  oneof way {
+      OldWay old_way                                  = 6[deprecated = true];
+      NewWay new_way                                  = 7;
+  }
+  // дата создания
+  google.protobuf.Timestamp created_at                = 8;
+}
+
+message OldWay {
+  option deprecated = true;
+  // user_account_id для соли по старой схеме
+  int32 user_account_id                               = 1;
+  // сеть (для старой len == 1)
+  string network                                      = 2;
+  // монета (для старой)
+  string coin                                         = 3;
+}
+
+message NewWay {
+  // ид ключа для наследования
+  optional uint32 master_key_id                       = 1;
+  // офсет, для наследованных адресов
+  optional uint32 derived_offset                      = 2;
+  // сеть (для старой len == 1)
+  repeated string networks                            = 3;
+  // процессинговые uuid (для процессингового адреса)
+  optional string processing_uuid                     = 4;
+}
+
+message AddressMultiResponse {
+  // адреса
+  repeated AddressResponse addresses                  = 1;
+  // общее количество при пагинации
+  optional uint64 total_count                         = 2;
+}
+
+
+//    CREATE TABLE address_personal
+//    (
+//    id         UUID      NOT NULL, -- uuid identifier
+//    address    TEXT      NOT NULL, -- address (possible not uniq)
+//    user_uuid  UUID      NOT NULL, -- user
+//    network    TEXT      NOT NULL, -- network group local identifier
+//    deleted_at TIMESTAMP NULL,     -- deleted date
+//    updated_at TIMESTAMP NOT NULL, -- updated date
+//    created_at TIMESTAMP NOT NULL, -- created date
+//
+//CONSTRAINT address_personal_user_uuid_network_group_uniq UNIQUE (user_uuid, network),
+//
+//    PRIMARY KEY (id)
+//    );
+
+message PersonalAddressResponse {
+  // адрес uuid
+  string address_uuid                                 = 1;
+  // адрес
+  string address                                      = 2;
+  // uuid пользователя
+  string user_uuid                                    = 3;
+  // сеть
+  string network                                      = 4;
+  // минимальаня выплата
+  double min_payout                                   = 5;
+  // дата создания
+  optional google.protobuf.Timestamp deleted_at       = 6;
+  // дата обновления
+  google.protobuf.Timestamp updated_at                = 7;
+  // дата создания
+  google.protobuf.Timestamp created_at                = 8;
+}
+
+message PersonalAddressMultiResponse {
+  // адреса
+  repeated PersonalAddressResponse addresses          = 1;
+  // общее количество при пагинации
+  optional uint64 total_count                         = 2;
+}
+
+
+

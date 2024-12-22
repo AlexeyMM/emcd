@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package profileAdmin;
+
+option go_package = "code.emcdtech.com/emcd/service/profile/protocol/profile;profile";
+
+import "google/protobuf/empty.proto";
+
+service adminProfileService {
+    rpc DeleteSubUser(DeleteSubUserRequest) returns (google.protobuf.Empty) {}
+}
+
+message DeleteSubUserRequest {
+    string subuser_id = 1;
+    string new_parent_id = 2;
+}

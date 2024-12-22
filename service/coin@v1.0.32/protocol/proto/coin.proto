@@ -1,0 +1,89 @@
+syntax = "proto3";
+
+package coin;
+
+option go_package = "code.emcdtech.com/emcd/service/coin/protocol/coin;coin";
+
+service CoinService {
+  rpc GetCoinIDFromLegacyID(GetCoinIDFromLegacyIDRequest) returns (GetCoinIDFromLegacyIDResponse) {
+    option deprecated = true;
+  };
+  rpc GetCoin(GetCoinRequest) returns (GetCoinResponse);
+  rpc GetCoins(GetCoinsRequest) returns (GetCoinsResponse);
+  rpc GetWithdrawalFee(RequestGetWithdrawalFee) returns (ResponseGetWithdrawalFee);
+}
+
+message Coin {
+  string id = 1;
+  bool is_active = 2;
+  string title = 3;
+  string description = 4;
+  int32 sort_priority_mining = 5;
+  int32 sort_priority_wallet = 6;
+  string media_url = 7;
+  bool is_withdrawals_disabled = 8;
+  repeated CoinNetwork networks = 9;
+  int32 legacy_coin_id = 10 [deprecated = true];
+  string mining_reward_type = 11;
+  int32 sort_priority_swap = 12;
+}
+
+message CoinNetwork {
+  string coin_id = 1;
+  string network_id = 2;
+  bool is_active = 3;
+  string title = 4;
+  string description = 5;
+  string contract_address = 6;
+  int32 decimals = 7;
+  double minpay_mining = 8;
+  double withdrawal_fee = 9;
+  double withdrawal_min_limit = 10;
+  int32 withdrawal_fee_ttl_seconds = 11;
+  bool is_mining = 12;
+  bool is_wallet = 13;
+  bool is_free_withdraw = 14;
+  bool is_withdrawals_disabled = 15;
+  int32 hash_divisor_power_of_ten = 16;
+  string explorer_url = 17;
+  int32 priority = 18;
+}
+
+message GetCoinIDFromLegacyIDRequest {
+  int32 legacy_coin_id = 1;
+}
+
+message GetCoinIDFromLegacyIDResponse {
+  string coin_id = 1;
+}
+
+message GetCoinRequest {
+  string coin_id = 1;
+}
+
+message GetCoinResponse {
+  Coin coin = 1;
+}
+
+message RequestGetWithdrawalFee {
+  string coin_id = 1;
+  string network_id = 2;
+  string to_address = 3;
+  double amount = 4;
+}
+
+message ResponseGetWithdrawalFee {
+  double fee = 1;
+  string valid_till = 2;
+}
+
+message GetCoinsRequest {
+  int32 limit = 1;
+  int32 offset = 2;
+  optional string wl_id = 3;
+}
+
+message GetCoinsResponse {
+  repeated Coin coins = 1;
+  int32    total_count = 2;
+}

@@ -1,0 +1,1 @@
+ALTER TABLE email_settings_password_restoration ADD COLUMN redirect_url text;

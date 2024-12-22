@@ -1,0 +1,864 @@
+syntax = "proto3";
+
+package accounting;
+option go_package = "/accounting";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/wrappers.proto";
+
+service AccountingService {
+  // Balances
+  rpc ViewBalance(ViewBalanceRequest) returns (ViewBalanceResponse);
+  rpc ChangeBalance(ChangeBalanceRequest) returns (ChangeBalanceResponse);
+  rpc ChangeMultipleBalance(ChangeMultipleBalanceRequest) returns (ChangeMultipleBalanceResponse);
+  rpc GetBalances(UserIDRequest) returns (GetBalancesResponse);
+  rpc GetBalanceByCoin(GetBalanceByCoinRequest) returns (GetBalanceByCoinResponse);
+  rpc GetPaid(GetPaidRequest) returns (GetPaidResponse);
+  rpc GetCoinsSummary(UserIDRequest) returns (GetCoinsSummaryResponse);
+
+  // Data selection
+  rpc FindOperations(FindOperationsRequest) returns (FindOperationsResponse);
+  rpc FindBatchOperations(FindBatchOperationsRequest) returns (FindBatchOperationsResponse);
+  rpc FindTransactions(FindTransactionsRequest) returns (FindTransactionsResponse);
+  rpc FindTransactionsByCollectorFilter(TransactionCollectorFilter) returns (TransactionMultiResponse);
+  rpc GetTransactionsByActionID(GetTransactionsByActionIDRequest) returns (GetTransactionsByActionIDResponse);
+  rpc FindTransactionsWithBlocks(FindTransactionsWithBlocksRequest) returns (FindTransactionsWithBlocksResponse);
+  rpc GetTransactionByID(GetTransactionByIDRequest) returns (GetTransactionByIDResponse);
+  rpc GetTransactionIDByAction(GetTransactionIDByActionRequest) returns (GetTransactionIDByActionResponse);
+  rpc FindOperationsAndTransactions(FindOperationsAndTransactionsRequest) returns (FindOperationsAndTransactionsResponse);
+
+  // Data selection for payouts
+  rpc FindPayoutsForBlock(FindPayoutsForBlockRequest) returns (FindPayoutsForBlockResponse);
+  rpc GetCurrentPayoutsBlock(GetCurrentPayoutsBlockRequest) returns (GetCurrentPayoutsBlockResponse);
+  rpc GetFreePayouts(GetFreePayoutsRequest) returns (GetFreePayoutsResponse);
+  rpc GetCurrentPayoutsList(GetCurrentPayoutsListRequest) returns(GetCurrentPayoutsListResponse);
+  rpc GetCurrentReferralsPayoutsList(GetCurrentReferralsPayoutsListRequest) returns(GetCurrentReferralsPayoutsListResponse);
+
+  rpc CheckFreePayoutTransaction(CheckFreePayoutTransactionRequest) returns (CheckFreePayoutTransactionResponse);
+  rpc CheckPayoutBlockStatus(CheckPayoutBlockStatusRequest) returns (CheckPayoutBlockStatusResponse);
+  rpc CheckIncomeOperations(CheckIncomeOperationsRequest) returns (CheckIncomeOperationsResponse);
+  rpc CheckOthers(CheckOthersRequest) returns (CheckOthersResponse);
+  rpc GetAveragePaid(GetAveragePaidRequest) returns (GetAveragePaidResponse);
+  rpc GetBalanceBeforeTransaction(GetBalanceBeforeTransactionRequest) returns (GetBalanceBeforeTransactionResponse);
+  rpc GetServiceUserData(GetServiceUserDataRequest) returns (GetServiceUserDataResponse);
+
+  // Analytics
+  rpc FindLastBlockTimeBalances(FindLastBlockTimeBalancesRequest) returns (FindLastBlockTimeBalancesResponse);
+  rpc FindBalancesDiffMining(FindBalancesDiffMiningRequest) returns (FindBalancesDiffMiningResponse);
+  rpc FindBalancesDiffWallet(FindBalancesDiffWalletRequest) returns (FindBalancesDiffWalletResponse);
+
+  // History
+  rpc GetHistory(GetHistoryRequest) returns (GetHistoryResponse);
+
+  //Payouts Limits
+  rpc CheckPayoutsLimit(CheckPayoutsLimitRequest) returns (CheckPayoutsLimitResponse);
+  rpc GetPayoutsBlockStatus(GetPayoutsBlockStatusRequest) returns (GetPayoutsBlockStatusResponse);
+  rpc SetPayoutsBlockStatus(SetPayoutsBlockStatusRequest) returns (SetPayoutsBlockStatusResponse);
+
+  // API for work transaction
+  rpc ListTransactions(ListTransactionsRequest) returns (ListTransactionsResponse);
+  // API for work account
+  // deprecated, use UserAccountService.GetUserAccountById
+  rpc GetUserAccount(GetUserAccountRequest) returns (GetUserAccountResponse);
+  // deprecated, use UserAccountService.GetUserAccountsByUuid
+  rpc GetUserAccounts(GetUserAccountsRequest) returns (GetUserAccountsResponse);
+
+  //Checker section
+  rpc GetIncomesHashrateByDate(GetIncomesHashrateRequest) returns (GetIncomesHashrateResponse);
+  rpc GetCoinsOperationsSum(GetCoinsOperationsSumRequest) returns (GetCoinsOperationsSumResponse);
+  rpc GetTransactionOperationsIntegrity(GetTransactionOperationsIntegrityRequest) returns (GetTransactionOperationsIntegrityResponse);
+  rpc GetCheckTransactionCoins(GetCheckTransactionCoinsRequest) returns (GetCheckTransactionCoinsResponse);
+  rpc GetCheckFreezePayoutsBlocks(GetCheckFreezePayoutsBlocksRequest) returns (GetCheckFreezePayoutsBlocksResponse);
+}
+
+message UserIDRequest {
+  int32 user_id = 1;
+}
+
+message CoinBalance {
+  string coin_id = 1;
+  string wallet_balance = 2;
+  string mining_balance = 3;
+  string coinholds_balance = 4;
+  string p2p_balance = 5;
+  string blocked_balance_coinhold = 6;
+  string blocked_balance_free_withdraw = 7;
+  string blocked_balance_p2p = 8;
+  string blocked_balance_minimg_payouts = 9;
+}
+
+message GetBalancesResponse {
+  repeated CoinBalance coin_balance = 1;
+}
+
+message GetBalanceByCoinRequest {
+  int32 user_id = 1;
+  string coin = 2;
+}
+
+message GetBalanceByCoinResponse {
+  CoinBalance coin_balance = 1;
+}
+
+message GetPaidRequest {
+  int32 user_id = 1;
+  string coin = 2;
+  google.protobuf.Timestamp from = 3;
+  google.protobuf.Timestamp to = 4;
+}
+
+message GetPaidResponse{
+  string paid = 1;
+}
+
+message CoinSummary {
+  string coin_id = 1;
+  string total_amount = 2;
+}
+
+message GetCoinsSummaryResponse {
+  repeated CoinSummary coin_summary = 1;
+}
+
+message Transaction {
+  int64                     type = 1;
+  google.protobuf.Timestamp createdAt = 2;
+  int64                     senderAccountID = 3;
+  int64                     receiverAccountID = 4;
+  string                    coinID = 5 [deprecated = true];  // TODO: выпилить
+  string                    amount = 6;
+  string                    comment = 7;
+  string                    hash = 8;
+  string                    receiverAddress = 9;
+  int64                     tokenID = 10;
+  int64                     hashrate = 11;
+  int64                     fromReferralId = 12;
+  string                    actionID = 13;
+}
+
+message Block {
+  google.protobuf.Timestamp blockedTill = 1;
+  int64                     unblockToAccountID = 2;
+}
+
+message OperationSelection {
+  string                    amount = 1;
+  int64                     accountID = 2;
+  string                    operationCoinID = 3;
+  string                    userAccountCoinID = 4;
+  int64                     accountTypeID = 5;
+  bool                      isActive = 6;
+  int64                     type = 7;
+  google.protobuf.Timestamp createdAt = 8;
+  int64                     transactionID = 9;
+}
+
+message UserIDCoinID {
+  int64  userID = 1;
+  string coinID = 2;
+}
+
+message BatchOperationSelection {
+  int64                       userID = 1;
+  repeated OperationSelection operations = 2;
+}
+
+message OperationSelectionWithBlock {
+  string                    amount = 1;
+  int64                     accountID = 2;
+  string                     operationCoinID = 3;
+  string                    userAccountCoinID = 4;
+  int64                     accountTypeID = 5;
+  bool                      isActive = 6;
+  int64                     unblockTransactionID = 7;
+  int64                     unblockToAccountID = 8;
+  int64                     type = 9;
+  google.protobuf.Timestamp createdAt = 10;
+  int64                     transactionID = 11;
+}
+
+message TransactionSelectionWithBlock {
+  int64  receiverAccountID = 1;
+  string coinID = 2;
+  int64  type = 3;
+  string amount = 4;
+  int64  blockID = 5;
+  int64  unblockToAccountID = 6;
+  int64  senderAccountID = 7;
+  int64  unblockTransactionID = 8;
+  string actionID = 9;
+}
+
+message UserBlockTimeBalance {
+  int64  userID = 1;
+  string balance = 2;
+}
+
+message UserBeforePayoutMining {
+  int64                     userID = 1;
+  int64                     accountTypeID = 2;
+  int64                     blockID = 3;
+  string                    coinID = 4;
+  google.protobuf.Timestamp lastPay = 5;
+}
+
+message UserMiningDiff {
+  int64  blockID = 1;
+  string diff = 2;
+}
+
+message UserBeforePayoutWallet {
+  int64          userID = 1;
+  int64          accountTypeID = 2;
+  string         coinID = 3;
+  repeated int64 transactionIDs = 4;
+}
+
+message UserWalletDiff {
+  int64  userID = 1;
+  int64  blockID = 2;
+  string diff = 3;
+}
+
+message Income {
+  int64                      diff = 1;
+  string                     changePercent = 2;
+  string                     time = 3;
+  string                     income = 4;
+  int64                      code = 5;
+  google.protobuf.Int64Value hashRate = 6;
+}
+
+message Payout {
+  string                      time = 1;
+  string                      amount = 2;
+  google.protobuf.StringValue tx = 3;
+  google.protobuf.StringValue txID = 4;
+}
+
+message Wallet {
+  google.protobuf.StringValue txID = 1;
+  google.protobuf.StringValue fiatStatus = 2;
+  google.protobuf.StringValue address = 3;
+  google.protobuf.StringValue comment = 4;
+  string                      coinholdType = 5;
+  google.protobuf.Int64Value  exchangeToCoinID = 6;
+  google.protobuf.Int64Value  coinholdID = 7;
+  google.protobuf.Int64Value  orderID = 8;
+  google.protobuf.Int64Value  createdAt = 9;
+  google.protobuf.StringValue amount = 10;
+  google.protobuf.StringValue fee = 11;
+  google.protobuf.StringValue fiatAmount = 12;
+  google.protobuf.StringValue exchangeAmountReceive = 13;
+  google.protobuf.StringValue exchangeAmountSent = 14;
+  google.protobuf.StringValue exchangeRate = 15;
+  google.protobuf.BoolValue   exchangeIsSuccess = 16;
+  google.protobuf.Timestamp   date = 17;
+  int64                       tokenID = 18;
+  int64                       coinID = 19;
+  int64                       status = 20;
+  int64                       type = 21;
+  int64                       id = 22;
+  int64                       p2pStatus = 23;
+  int64                       p2pOrderID = 24;
+  google.protobuf.StringValue referralEmail = 25;
+  google.protobuf.Int64Value  referralType = 26;
+  string                      networkID = 27;
+  string                      coinStrID = 28;
+}
+
+
+message ViewBalanceRequest {
+  int64  userID = 1;
+  string coinID = 2;
+  int64  accountTypeID = 3;
+  bool   totalBalance = 4;
+}
+
+message ViewBalanceResponse {
+  string balance = 1;
+}
+
+message ChangeBalanceRequest {
+  repeated Transaction transactions = 1;
+}
+
+message ChangeBalanceResponse {
+}
+
+message FindOperationsRequest {
+  int64  userID = 1;
+  string coinID = 2;
+}
+
+message FindOperationsResponse {
+  repeated OperationSelectionWithBlock operations = 1;
+}
+
+message FindBatchOperationsRequest {
+  repeated UserIDCoinID users = 1;
+}
+
+message FindBatchOperationsResponse {
+  repeated BatchOperationSelection operationsByUsers = 1;
+}
+
+message FindTransactionsRequest {
+  repeated int64            types = 1;
+  int64                     userID = 2;
+  int64                     accountTypeID = 3;
+  repeated string           coinIDs = 4;
+  google.protobuf.Timestamp from = 5;
+}
+
+message FindTransactionsResponse {
+  repeated Transaction transactions = 1;
+}
+
+message Pagination {
+  // количество в запросе к бд
+  uint64 limit                                          = 1;
+  // сдвиг в запросе к бд
+  uint64 offset                                         = 2;
+}
+
+message TransactionCollectorFilter {
+  // тип транзакции
+  repeated int32 types                                  = 1;
+  // монета
+  optional string coin_code                             = 2;
+  // дата создания, больше
+  optional google.protobuf.Timestamp created_at_gt      = 3;
+  // дата создания, меньше или равно
+  optional google.protobuf.Timestamp created_at_lte     = 4;
+  // пагинация
+  optional Pagination pagination                        = 5;
+}
+
+message TransactionMultiResponse {
+  // транзакции
+  repeated Transaction transactions                     = 1;
+  // общее количество
+  optional uint64 total_count                           = 2;
+}
+
+message GetTransactionsByActionIDRequest {
+  string  actionID = 1;
+}
+
+message GetTransactionsByActionIDResponse {
+  repeated Transaction transactions = 1;
+}
+
+message FindTransactionsWithBlocksRequest {
+  google.protobuf.Timestamp blockedTill = 1;
+}
+
+message FindTransactionsWithBlocksResponse {
+  repeated TransactionSelectionWithBlock transactions = 1;
+}
+
+message GetTransactionByIDRequest {
+  int64 id = 1;
+}
+
+message GetTransactionByIDResponse {
+  TransactionSelectionWithBlock transaction = 1;
+}
+
+message GetTransactionIDByActionRequest {
+  string actionID = 1;
+  string amount = 2;
+  int64  type = 3;
+}
+
+message GetTransactionIDByActionResponse {
+  int64 id = 1;
+}
+
+message FindLastBlockTimeBalancesRequest {
+  repeated int64 userAccountIDs = 1;
+}
+
+message FindLastBlockTimeBalancesResponse {
+  repeated UserBlockTimeBalance balances = 1;
+}
+
+// for 21 type (PoolPaysUsersBalanceTrTypeID)
+message FindBalancesDiffMiningRequest {
+  repeated UserBeforePayoutMining users = 1;
+}
+
+// for 21 type (PoolPaysUsersBalanceTrTypeID)
+message FindBalancesDiffMiningResponse {
+  repeated UserMiningDiff diffs = 1;
+}
+
+// for 31 type (WalletMiningTransferTrTypeID)
+message FindBalancesDiffWalletRequest {
+  repeated UserBeforePayoutWallet users = 1;
+}
+
+// for 31 type (WalletMiningTransferTrTypeID)
+message FindBalancesDiffWalletResponse {
+  repeated UserWalletDiff diffs = 1;
+}
+
+message GetHistoryRequest {
+  string         type = 1;
+  string         coinCode = 2;
+  string         from = 3;
+  string         to = 4;
+  int32          limit = 5;
+  int32          offset = 6;
+  int64          coinholdID = 7;
+  int64          userID = 8;
+  repeated int64 transactionTypesIDs = 9;
+  repeated int64 accountTypeIDs = 10;
+  repeated int64 coinsIDs = 11;
+}
+
+message GetHistoryResponse {
+  int64                     totalCount = 1;
+  string                    incomesSum = 2;
+  string                    payoutsSum = 3;
+  google.protobuf.BoolValue hasNewIncome = 4;
+  google.protobuf.BoolValue hasNewPayouts = 5;
+  repeated Income           incomes = 6;
+  repeated Payout           payouts = 7;
+  repeated Wallet           wallets = 8;
+}
+
+message ChangeMultipleBalanceRequest {
+  repeated Transaction transactions = 1;
+}
+
+message ChangeMultipleBalanceResponse {}
+
+message CheckPayoutsLimitRequest {
+  int64  userID = 1;
+  string coinID = 2;
+  float  amount = 3;
+}
+
+message CheckPayoutsLimitResponse {
+}
+
+message GetPayoutsBlockStatusRequest {
+  int64  userID = 1;
+}
+
+message GetPayoutsBlockStatusResponse {
+  int32  status = 1;
+  string message = 2;
+}
+
+message SetPayoutsBlockStatusRequest {
+  int64  userID = 1;
+  int32  status = 2;
+}
+
+message SetPayoutsBlockStatusResponse {
+  bool   success = 1;
+  string message = 2;
+}
+
+message FindOperationsAndTransactionsRequest {
+  optional int64    userID = 1;
+  optional int64    coinID = 2;
+  optional int64    tokenID = 3;
+  optional string   actionID = 4;
+  optional int32    accountType = 5;
+  repeated int32    operationTypes = 6;
+  optional string   dateFrom = 7;
+  optional string   dateTo = 8;
+  optional string   amount = 9;
+  optional string   hash = 10;
+  optional int64    receiverAccountID = 11;
+  optional string   receiverAddress = 12;
+  optional int64    senderAccountID = 13;
+  optional int64    transactionBlockID = 14;
+  optional int64    unblockToAccountId = 15;
+  optional int64    unblockTransactionId = 16;
+  optional int64    fromReferralId = 17;
+  int32             limit = 18;
+  int32             offset = 19;
+  Sort              sort = 20;
+}
+
+message FindOperationsAndTransactionsResponse {
+  int64 totalCount = 1;
+  repeated OperationWithTransaction operations = 2;
+}
+
+message OperationWithTransaction {
+  int64                     id = 1;
+  int64                     accountID = 2;
+  int64                     coinID = 3;
+  int64                     tokenID = 4;
+  string                    amount = 5;
+  int64                     type = 6;
+  int64                     transactionID = 7;
+  string                    actionID = 8;
+  string                    comment = 9;
+  string                    fee = 10;
+  int64                     fromReferralId = 11;
+  string                    gasPrice = 12;
+  string                    hash = 13;
+  int64                     hashrate = 14;
+  int64                     receiverAccountID = 15;
+  string                    receiverAddress = 16;
+  int64                     senderAccountID = 17;
+  int64                     transactionBlockID = 18;
+  google.protobuf.Timestamp blockedTill = 19;
+  int64                     unblockToAccountId = 20;
+  int64                     unblockTransactionId = 21;
+  google.protobuf.Timestamp createdAt = 22;
+}
+
+message Sort {
+  string field = 1;
+  bool asc = 2;
+}
+
+message ListTransactionsRequest {
+  repeated int64 receiver_account_ids = 1;
+  repeated int64 types = 2;
+  google.protobuf.Timestamp from = 3;
+  google.protobuf.Timestamp to = 4;
+  int64 from_transaction_id = 5;
+}
+
+message ListTransactionsResponse {
+  repeated Transaction transactions = 1;
+  int64 last_transaction_id = 2;
+}
+
+message GetUserAccountRequest {
+  int64 id = 1;
+}
+
+message GetUserAccountResponse {
+  UserAccount user_account = 1;
+}
+
+message GetUserAccountsRequest {
+  string user_id = 1;
+}
+
+message GetUserAccountsResponse {
+  repeated UserAccount user_accounts = 1;
+}
+
+message UserAccount {
+  int64 id = 1;
+  string user_id = 2;
+  string coin_id = 3;
+  int32 type_id = 4;
+}
+
+message FindPayoutsForBlockRequest {
+  int64                        coinID = 1;
+  float                        minPay = 2;
+  google.protobuf.Timestamp    timestamp = 3;
+}
+
+message FindPayoutsForBlockResponse {
+  repeated PayoutForBlock payouts = 1;
+}
+
+message PayoutForBlock {
+  int64  accountID = 1;
+  int64  userID = 2;
+  string balance = 3;
+  string address = 4;
+}
+
+message GetCurrentPayoutsBlockRequest {
+  int64 coinID = 1;
+  string username = 2;
+  bool is_service = 3;
+}
+
+message GetCurrentPayoutsBlockResponse {
+  repeated PayoutBlockTransaction transactions = 1;
+}
+
+message PayoutBlockTransaction {
+  int64 ID = 1;
+  string balance = 2;
+}
+
+message GetFreePayoutsRequest{
+  int64 coinID = 1;
+}
+
+message GetFreePayoutsResponse{
+  repeated FreePayout payouts = 1;
+}
+
+message FreePayout{
+  int64                     accountId = 1;
+  int64                     userId = 2;
+  string                    username = 3;
+  int64                     ID = 4;
+  string                    actionID = 5;
+  string                    amount = 6;
+  int64                     coinID = 7;
+  string                    comment = 8;
+  google.protobuf.Timestamp createdAt = 9;
+  string                    fee  = 10;
+  int64                     fromReferralID = 11;
+  string                    gasPrice = 12;
+  string                    hash = 13;
+  int64                     hashrate = 14;
+  bool                      isViewer = 15;
+  int64                     receiverAccountID = 16;
+  string                    receiverAddress = 17;
+  int64                     senderAccountID = 18;
+  int64                     tokenID = 19;
+  int64                     type = 20;
+}
+
+message GetCurrentPayoutsListRequest{
+  int64 coinId = 1;
+  int64 paymentTransactionType = 2;
+}
+
+message GetCurrentReferralsPayoutsListRequest{
+  int64 coinId = 1;
+  int64 paymentTransactionType = 2;
+  int64 referralId = 3;
+}
+
+message GetCurrentPayoutsListResponse{
+  repeated CurrentPayout payouts = 1;
+}
+
+
+message GetCurrentReferralsPayoutsListResponse{
+  repeated CurrentReferralPayout payouts = 1;
+}
+
+message CurrentPayout{
+  int64 id = 1;
+  int64 accountID2 = 2;
+  int64 userID = 3;
+  int64 refID = 4;
+  int64 coinID = 5;
+  string username = 6;
+  string minpay = 7;
+  int64 masterID = 8;
+  string address = 9;
+  string balance = 10;
+  int64 blockID = 11;
+  google.protobuf.Timestamp blockCreate = 12;
+  PayoutCalculationData calc = 13;
+}
+
+message CurrentReferralPayout{
+  int64 id = 1;
+  int64 accountID2 = 2;
+  int64 userID = 3;
+  int64 refID = 4;
+  int64 coinID = 5;
+  string username = 6;
+  string minpay = 7;
+  int64 masterID = 8;
+  string address = 9;
+  string balance = 10;
+  PayoutCalculationData calc = 11;
+}
+
+message PayoutCalculationData{
+  string coinhold = 1;
+  string incomes = 2;
+  string hashrate = 3;
+  string feeAndMore = 4;
+  string ref = 5;
+  string other = 6;
+  string types = 7;
+  int64 accountId = 8;
+  google.protobuf.Timestamp lastPay = 9;
+  google.protobuf.Timestamp incomeFirst = 10;
+  google.protobuf.Timestamp incomeLast = 11;
+}
+
+message CheckFreePayoutTransactionRequest{
+  int64 accountID = 1;
+  int64 transactionID = 2;
+}
+
+message CheckFreePayoutTransactionResponse{
+  string sum = 1;
+}
+
+message CheckPayoutBlockStatusRequest{
+  repeated int64 blockTransactionIds = 1;
+}
+
+message CheckPayoutBlockStatusResponse{
+  repeated PayoutBlock payoutBlocks = 1;
+}
+
+message PayoutBlock{
+  int64 toAccountId = 1;
+  int64 type = 2;
+  string receiverAddress = 3;
+  int64 ubTrId = 4;
+  string amount = 5;
+}
+
+message CheckIncomeOperationsRequest{
+  google.protobuf.Timestamp createdAt = 1;
+  string coin = 2;
+  int64 userID = 3;
+  int64 accountID = 4;
+  google.protobuf.Timestamp lastPayAt = 5;
+}
+
+message CheckIncomeOperationsResponse{
+  repeated IncomeWithFee incomes = 1;
+}
+
+message IncomeWithFee{
+  int64 transactionId = 1;
+  string amount = 2;
+  int64 hashrate = 3;
+  google.protobuf.Timestamp createdAt = 4;
+  string fee = 5;
+}
+
+message GetAveragePaidRequest{
+  int64 coinID = 1;
+  int64 days = 2;
+  int64 transactionTypeID = 3;
+  int64 accountTypeID = 4;
+  string username = 5;
+}
+
+message GetAveragePaidResponse{
+  string avg = 1;
+}
+
+message CheckOthersRequest{
+  int64 accountID = 1;
+  repeated int64            types = 2;
+  google.protobuf.Timestamp lastPayAt = 3;
+  optional google.protobuf.Timestamp blockCreatedAt = 4;
+}
+
+message CheckOthersResponse{
+  repeated OtherOperationsWithTransaction others = 1;
+}
+
+message OtherOperationsWithTransaction{
+    int64 transactionID = 1;
+    int64 senderID = 2;
+    int64 receiverID = 3;
+    string hash = 4;
+    int64 operationID = 5;
+    int64 senderUserID = 6;
+    int64 receiverUserID = 7;
+    string amount = 8;
+    int64 type = 9;
+    google.protobuf.Timestamp createdAt = 10;
+    string comment = 11;
+}
+
+message GetBalanceBeforeTransactionRequest{
+  int64 accountID = 1;
+  int64 transactionID = 2;
+}
+
+message GetBalanceBeforeTransactionResponse{
+  string sum = 1;
+}
+
+message GetServiceUserDataRequest{
+  int64 coinID = 1;
+  string username = 2;
+  int64 limit = 3;
+}
+
+message GetServiceUserDataResponse{
+   repeated ServiceUserBlock blocks = 1;
+}
+
+message ServiceUserBlock{
+  string address = 1;
+  int64 suAccountID = 2;
+  int64 userID = 3;
+  string username = 4;
+  string amount = 5;
+  int64 blockID = 6;
+}
+
+message GetIncomesHashrateRequest{
+  google.protobuf.Timestamp date = 1;
+}
+
+message GetIncomesHashrateResponse{
+  repeated HashrateByDate hashrateByDate = 1;
+}
+
+message HashrateByDate{
+  int64 coinId = 1;
+  string hashrate = 2;
+}
+
+message GetCoinsOperationsSumRequest{
+}
+
+message GetCoinsOperationsSumResponse{
+  repeated OperationsSumData data = 1;
+}
+
+message OperationsSumData{
+  int64  coinId = 1;
+  string sum = 2;
+}
+
+message GetTransactionOperationsIntegrityRequest{
+}
+
+message GetTransactionOperationsIntegrityResponse{
+  repeated TransactionOperationsIntegrityData data = 1;
+}
+
+message TransactionOperationsIntegrityData {
+  int64 count = 1;
+  int64 trId = 2;
+  int64 op2Id = 3;
+  int64 op1Id = 4;
+  bool opPairCheck = 5;
+  bool trNegChk = 6;
+  bool opSumChk = 7;
+  bool diffChk = 8;
+  bool trDateChk = 9;
+  bool coinChk = 10;
+  bool accChk = 11;
+}
+
+message GetCheckTransactionCoinsRequest{
+}
+
+message GetCheckTransactionCoinsResponse{
+  repeated int64 trIds = 1;
+  repeated int64 opIds = 2;
+}
+
+message GetCheckFreezePayoutsBlocksRequest{
+}
+
+message GetCheckFreezePayoutsBlocksResponse{
+  repeated CheckFreezePayoutsBlocksData data = 1;
+}
+
+message CheckFreezePayoutsBlocksData{
+  int64 trId = 1;
+  int64 type = 2;
+  int64 userId = 3;
+  google.protobuf.Timestamp createdAt = 4;
+}
+

@@ -1,0 +1,184 @@
+syntax = "proto3";
+
+package user_account;
+option go_package = "/user_account";
+
+import "google/protobuf/timestamp.proto";
+
+///////////////////////////////////////////////////////
+//  service
+///////////////////////////////////////////////////////
+
+service UserAccountService {
+  // User Account
+    rpc CreateUserAccounts(UserAccountMultiRequest) returns (UserAccountMultiResponse);
+    rpc GetOrCreateUserAccount(UserAccountOneRequest) returns (UserAccountResponse);
+
+    rpc GetUserAccountsByFilter(UserAccountFilter) returns (UserAccountMultiResponse);
+    rpc GetUserAccountById(UserAccountId) returns (UserAccountResponse);
+    rpc GetUserAccountByConstraint(UserAccountConstraintRequest) returns (UserAccountResponse);
+    rpc GetUserAccountsByUuid(UserAccountUuid) returns (UserAccountMultiResponse);
+}
+
+///////////////////////////////////////////////////////
+//  request
+///////////////////////////////////////////////////////
+
+message UserAccountOneRequest {
+    // id пользователя
+    int32 user_id                                   = 100[deprecated = true];
+    // id пользователя в формате uuid
+    string user_id_new                              = 1;
+    // тип аккаунта (Platform, Pool, Coinhold, Referral, Block, Hedge, P2P)
+    int32 account_type_id                           = 2;
+    // ?
+    double minpay                                   = 3;
+    // адрес
+    optional string address                         = 4;
+    // ?
+    optional double img1                            = 5;
+    // ?
+    optional double img2                            = 6;
+    // ?
+    optional double fee                             = 7;
+    // монета
+    string coin_new                                 = 8;
+}
+
+message UserAccountRequest {
+    // тип аккаунта (Platform, Pool, Coinhold, Referral, Block, Hedge, P2P)
+    int32 account_type_id                           = 2;
+    // ?
+    double minpay                                   = 3;
+    // адрес
+    optional string address                         = 4;
+    // ?
+    optional double img1                            = 5;
+    // ?
+    optional double img2                            = 6;
+    // ?
+    optional double fee                             = 7;
+    // монета
+    string coin_new                                 = 8;
+}
+
+message UserAccountConstraintRequest {
+    // id пользователя в формате uuid
+    string user_id_new                              = 1;
+    // монета
+    string coin_new                                 = 2;
+    // тип аккаунта
+    int32 account_type_id                           = 3;
+}
+
+message UserAccountMultiRequest {
+    // id пользователя
+    int32 user_id                                   = 1[deprecated = true];
+    // id пользователя в формате uuid
+    string user_id_new                              = 2;
+    // пользовательские аккаунты
+    repeated UserAccountRequest user_accounts       = 3;
+}
+
+///////////////////////////////////////////////////////
+//  id
+///////////////////////////////////////////////////////
+
+message UserAccountId {
+    // id универсальный
+    int32 id                                        = 1;
+}
+
+message UserAccountUuid {
+    // uuid универсальный
+    string uuid                                     = 1;
+}
+
+///////////////////////////////////////////////////////
+//  filter
+///////////////////////////////////////////////////////
+
+message UserAccountPagination {
+    // количество в запросе к бд
+    uint64 limit                                    = 1;
+    // сдвиг в запросе к бд
+    uint64 offset                                   = 2;
+}
+
+message UserAccountFilter {
+    // идентификатор
+    optional int32 id                               = 1;
+    // id пользователя, deprecated
+    optional int32 user_id                          = 2;
+    // тип аккаунта
+    optional int32 account_type_id                  = 4;
+    // id пользователя в формате uuid
+    optional string user_id_new                     = 5;
+    // монета
+    optional string coin_new                        = 6;
+    // пагинация
+    optional UserAccountPagination pagination       = 7;
+    // флаг активность
+    optional bool is_active                         = 8;
+}
+
+
+///////////////////////////////////////////////////////
+//  response
+///////////////////////////////////////////////////////
+
+//
+//id serial4 NOT NULL,
+//user_id int4 NOT NULL,
+//coin_id int4 NOT NULL,
+//account_type_id int4 NOT NULL,
+//minpay numeric NOT NULL,
+//address varchar NULL,
+//changed_at timestamp NULL,
+//img1 numeric NULL,
+//img2 numeric NULL,
+//is_active bool NULL,
+//created_at timestamp DEFAULT now() NULL,
+//updated_at timestamp DEFAULT now() NULL,
+//fee numeric DEFAULT 0.015 NULL,
+//
+message UserAccountResponse {
+    // идентификатор
+    int32 id                                        = 1;
+    // id пользователя, deprecated
+    int32 user_id                                   = 2;
+    // id монеты, deprecated
+    int32 coin_id                                   = 3[deprecated = true];
+    // тип аккаунта (Platform, Pool, Coinhold, Referral, Block, Hedge, P2P)
+    int32 account_type_id                           = 4;
+    // ?
+    double minpay                                   = 5;
+    // адрес
+    optional string address                         = 6;
+    // ?
+    optional google.protobuf.Timestamp changed_at   = 7;
+    // ?
+    optional double img1                            = 8;
+    // ?
+    optional double img2                            = 9;
+    // ?
+    optional bool is_active                         = 10;
+    // ?
+    optional google.protobuf.Timestamp created_at   = 11;
+    // ?
+    optional google.protobuf.Timestamp updated_at   = 12;
+    // ?
+    optional double fee                             = 13;
+    // id пользователя в формате uuid
+    string user_id_new                              = 14;
+    // монета
+    string coin_new                                 = 15;
+}
+
+
+message UserAccountMultiResponse {
+    // пользовательские аккаунты
+    repeated UserAccountResponse user_accounts      = 1;
+    // общее количество
+    optional uint64 total_count                     = 2;
+}

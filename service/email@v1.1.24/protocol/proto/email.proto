@@ -1,0 +1,228 @@
+syntax = "proto3";
+
+package email;
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "code.emcdtech.com/emcd/service/email/protocol/email;email";
+
+service EmailService {
+  rpc ListMessages(GetSentEmailMessagesByEmailRequest) returns (GetSentEmailMessagesByEmailResponse) {}
+
+  rpc SendPasswordRestoration(SendPasswordRestorationRequest) returns (SendPasswordRestorationResponse) {}
+  rpc SendWorkerChangedState(SendWorkerChangedStateRequest) returns (SendWorkerChangedStateResponse) {}
+  rpc SendWalletChangedAddress(SendWalletChangedAddressRequest) returns (SendWalletChangedAddressResponse) {}
+  rpc SendRegister(SendRegisterRequest) returns (SendRegisterResponse) {}
+  rpc SendMobileTwoFaOff(SendMobileTwoFaOffRequest) returns (SendMobileTwoFaOffResponse) {}
+  rpc SendMobileTwoFaOn(SendMobileTwoFaOnRequest) returns (SendMobileTwoFaOnResponse) {}
+  rpc SendGoogleTwoFaOff(SendGoogleTwoFaOffRequest) returns (SendGoogleTwoFaOffResponse) {}
+  rpc SendGoogleTwoFaOn(SendGoogleTwoFaOnRequest) returns (SendGoogleTwoFaOnResponse) {}
+  rpc SendUserHashrateDecreased(SendUserHashrateDecreasedRequest) returns (SendUserHashrateDecreasedResponse) {}
+  rpc SendPasswordChange(SendPasswordChangeRequest) returns (SendPasswordChangeResponse) {}
+  rpc SendPhoneDelete(SendPhoneDeleteRequest) returns (SendPhoneDeleteResponse) {}
+  rpc SendReferralRewardPayouts(SendReferralRewardPayoutsRequest) returns (SendReferralRewardPayoutsResponse) {}
+  rpc SendChangeEmail(SendChangeEmailRequest) returns (SendChangeEmailResponse) {}
+  rpc SendStatisticsReport(SendStatisticsReportRequest) returns (SendStatisticsReportResponse) {}
+  // SendSwapSupportMessage B2B, здесь пользователь - клиент B2B-партнёра и не зарегистрирован в нашей базе данных
+  // отправляет электронное письмо в службу поддержки от пользователя.
+  // Функция принимает: имя, email и текст сообщения.
+  rpc SendSwapSupportMessage(SendSwapSupportMessageRequest) returns (SendSwapSupportMessageResponse) {}
+  //  SendInitialSwapMessage B2B, здесь пользователь - клиент B2B-партнёра и не зарегистрирован в нашей базе данных
+  //  отправляет электронное письмо пользователю при инициализации свопа,
+  //  со ссылкой на страницу с актуальным статусом свопа
+  rpc SendInitialSwapMessage(SendInitialSwapMessageRequest) returns (SendInitialSwapMessageResponse) {}
+  //  SendSuccessfulSwapMessage B2B, здесь пользователь - клиент B2B-партнёра и не зарегистрирован в нашей базе данных
+  //  отправляет письмо после успешного завершения свопа
+  //  запрос выполняет swap service, все данные хранятся в базе swap
+  rpc SendSuccessfulSwapMessage(SendSuccessfulSwapMessageRequest) returns (SendSuccessfulSwapMessageResponse) {}
+}
+
+message SendPasswordRestorationRequest {
+  string user_id = 1;
+  string token = 2;
+  string domain = 3;
+}
+
+message SendPasswordRestorationResponse {}
+
+message SendWorkerChangedStateRequest {
+  string workerName = 1;
+  string username = 2;
+  string email = 3;
+  bool isOn = 4;
+  string coin = 5;
+  string language = 6;
+  string whiteLabelID = 7;
+  google.protobuf.Timestamp stateChangedAt = 8;
+  string domain = 9;
+}
+
+message SendWorkerChangedStateResponse {}
+
+message SendWalletChangedAddressRequest {
+  reserved 1, 3, 4, 6;
+
+  string token = 2;
+  string coinCode = 5;
+  string domain = 7;
+  string user_id = 8;
+}
+
+message SendWalletChangedAddressResponse {}
+
+message SendRegisterRequest {
+  string whiteLabelID = 1;
+  string token = 2;
+  string email = 3;
+  string language = 4;
+  string domain = 5;
+}
+
+message SendRegisterResponse {}
+
+message SendMobileTwoFaOffRequest {
+  string user_id = 1;
+  string domain = 2;
+}
+
+message SendMobileTwoFaOffResponse {}
+
+message SendMobileTwoFaOnRequest {
+  string user_id = 1;
+  string token = 2;
+  string domain = 3;
+}
+
+message SendMobileTwoFaOnResponse {}
+
+message SendGoogleTwoFaOffRequest {
+  string user_id = 1;
+  string domain = 2;
+}
+
+message SendGoogleTwoFaOffResponse {}
+
+message SendGoogleTwoFaOnRequest {
+  string user_id = 1;
+  string token = 2;
+  string domain = 3;
+}
+
+message SendGoogleTwoFaOnResponse {}
+
+message SendUserHashrateDecreasedRequest {
+  string email = 1;
+  string decreasedBy = 2;
+  string coin = 3;
+  string whiteLabelID = 4;
+  string language = 5;
+  string domain = 6;
+}
+
+message SendUserHashrateDecreasedResponse {}
+
+message GetSentEmailMessagesByEmailRequest {
+  int32 skip = 1;
+  int32 take = 2;
+  optional string email = 3;
+  optional string type = 4;
+}
+
+message Email {
+  string id = 1;
+  string email = 2;
+  string type = 3;
+  google.protobuf.Timestamp createdAt = 4;
+}
+
+message GetSentEmailMessagesByEmailResponse {
+  repeated Email list = 1;
+  int32 total_count = 2;
+}
+
+message SendPasswordChangeRequest {
+  string user_id = 1;
+  string token = 2;
+  string domain = 3;
+}
+
+message SendPasswordChangeResponse {}
+
+message SendPhoneDeleteRequest {
+  string user_id = 1;
+  string token = 2;
+  string domain = 3;
+}
+
+message SendPhoneDeleteResponse {}
+
+message Attachment {
+  string name = 1;
+  bytes body = 2;
+}
+
+message SendReferralRewardPayoutsRequest {
+  reserved 1, 2;
+  google.protobuf.Timestamp from = 3;
+  google.protobuf.Timestamp to = 4;
+  repeated Attachment attachments = 5;
+  string domain = 6;
+  string user_id = 7;
+}
+
+message SendReferralRewardPayoutsResponse {}
+
+message SendChangeEmailRequest {
+  string whiteLabelID = 1;
+  string token = 2;
+  string email = 3;
+  string language = 4;
+  string domain = 5;
+}
+
+message SendChangeEmailResponse {}
+
+enum ReportType {
+  INCOME = 0;
+  PAYOUT = 1;
+  WORKER = 2;
+}
+
+message SendStatisticsReportRequest {
+  string email = 1;
+  string language = 2;
+  string report_link = 3;
+  ReportType report_type = 4;
+}
+
+message SendStatisticsReportResponse {}
+
+message SendSwapSupportMessageRequest {
+  string name = 1;
+  string user_email = 2; // Электронная почта пользователя, служит для обратной связи
+  string text = 3;
+}
+
+message SendSwapSupportMessageResponse {}
+
+message SendInitialSwapMessageRequest{
+  string email = 1;
+  string language = 2;
+  string link = 3;
+}
+
+message SendInitialSwapMessageResponse {}
+
+message SendSuccessfulSwapMessageRequest {
+  string email = 1;
+  string language = 2;
+  string swap_id = 3;
+  string from = 4; // example: 100 USDT
+  string to = 5; // example: 0.1 BTC
+  string address = 6; // адрес, на который отправлена крипта пользователю
+  // время выполнения свопа.
+  // Передаём string, что бы иметь возможность форматировать в нужный формат на swap service
+  string execution_time = 7;
+}
+
+message SendSuccessfulSwapMessageResponse {}

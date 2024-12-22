@@ -1,0 +1,74 @@
+syntax = "proto3";
+package default_settings;
+option go_package = "code.emcdtech.com/emcd/service/referral/protocol/default_settings;default_settings";
+
+import "google/protobuf/timestamp.proto";
+
+service DefaultSettingsService {
+  rpc Create(CreateRequest) returns (CreateResponse);
+  rpc Update(UpdateRequest) returns (UpdateResponse);
+  rpc Delete(DeleteRequest) returns (DeleteResponse);
+  rpc Get(GetRequest) returns (GetResponse);
+  rpc GetAll(GetAllRequest) returns (GetAllResponse);
+
+  // GetAllWithoutPagination функция возвращает дефолтные значения по продуктам и монетам. Если передали referrer_id
+  // то сначала проверяется таблица default_users_settings на наличие в ней записей, а потом обычные дефолтные
+  // при этом возвращаются слитые значение, то есть то чего не было в default_users_settings добавляется из default_settings
+  rpc GetAllWithoutPagination(GetAllWithoutPaginationRequest) returns (GetAllWithoutPaginationResponse) {}
+}
+
+message Settings {
+  string product = 1;
+  string coin = 2;
+  string fee = 3;
+  string referral_fee = 4;
+  google.protobuf.Timestamp created_at = 5;
+}
+
+message CreateRequest {
+  Settings settings = 1;
+}
+
+message CreateResponse {}
+
+message UpdateRequest {
+  Settings settings = 1;
+}
+
+message UpdateResponse {}
+
+message DeleteRequest {
+  string product = 1;
+  string coin = 2;
+}
+
+message DeleteResponse {}
+
+message GetRequest {
+  string product = 1;
+  string coin = 2;
+}
+
+message GetResponse {
+  Settings settings = 1;
+}
+
+message GetAllRequest {
+  int32 skip = 1;
+  int32 take = 2;
+}
+
+message GetAllResponse {
+  repeated Settings list = 1;
+  int32 total_count = 2;
+}
+
+message GetAllWithoutPaginationRequest {
+  // referrer_id uuid реферала
+  string referrer_id = 1;
+}
+
+message GetAllWithoutPaginationResponse {
+  repeated  Settings list=1;
+}
+

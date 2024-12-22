@@ -1,0 +1,1 @@
+UPDATE users set pool_type = 'emcd' where pool_type = '';

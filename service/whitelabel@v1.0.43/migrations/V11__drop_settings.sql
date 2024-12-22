@@ -1,0 +1,1 @@
+DROP TABLE email_settings_password_restoration;

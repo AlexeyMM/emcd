@@ -1,0 +1,17 @@
+- api_key: ""
+  apple_id: null
+  created_at: 2023-11-04T15:43:22.877259Z
+  email: qa-test+9@emcd.io
+  id: 10cbfbc2-b1ab-45ad-af79-951860973223
+  is_active: true
+  language: null
+  new_ref_id: 48e6aa17-0bbc-424e-aea4-d0d77dedd159
+  parent_id: null
+  password: subaccount
+  pool_type: emcd
+  ref_id: 1
+  suspended: 2024-02-05T11:04:06.553128Z
+  username: cPvlMJ
+  was_referral_link_generated: false
+  whitelabel_id: 00000000-0000-0000-0000-000000000000
+  is_ambassador: false

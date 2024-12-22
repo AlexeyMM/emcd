@@ -1,0 +1,161 @@
+syntax = "proto3";
+package referral;
+option go_package = "code.emcdtech.com/emcd/service/referral/protocol/referral;referral";
+
+import "google/protobuf/timestamp.proto";
+
+service ReferralService {
+  rpc Create(CreateRequest) returns (CreateResponse);
+  rpc Update(UpdateRequest) returns (UpdateResponse);
+  rpc Delete(DeleteRequest) returns (DeleteResponse);
+  rpc Get(GetRequest) returns (GetResponse);
+  rpc List(ListRequest) returns (ListResponse);
+  rpc History(HistoryRequest) returns (HistoryResponse);
+  rpc CreateMultiple(CreateMultipleRequest) returns (CreateMultipleResponse);
+  rpc GetUserReferrals(GetUserReferralsRequest) returns (GetUserReferralsResponse);
+  rpc UpdateFeeWithMultiplier(UpdateFeeWithMultiplierRequest) returns (UpdateFeeWithMultiplierResponse) {
+    option deprecated = true;
+  }
+  rpc UpdateFeeToDefault(UpdateFeeToDefaultRequest) returns (UpdateFeeToDefaultResponse) {}
+  rpc UpdateWithPromoCode(UpdateWithPromoCodeRequest) returns (UpdateWithPromoCodeResponse) {}
+
+  // SetFee установка комиссии по монетам и продукту вручную.
+  rpc SetFee(SetFeeRequest) returns (SetFeeResponse) {}
+
+  // SetReferralUUID обновление реферальной связи у пользователя.
+  rpc SetReferralUUID(SetReferralUUIDRequest) returns (SetReferralUUIDResponse) {}
+}
+
+message SetReferralUUIDRequest{
+  string user_uuid = 1;
+  string referral_uuid = 2;
+}
+
+message SetReferralUUIDResponse{}
+
+message SetFeeRequest {
+  message CoinFee {
+    string coin = 1;
+    string product = 2;
+    string fee = 3;
+  }
+
+  string user_uuid = 1;
+  repeated CoinFee fees = 2;
+}
+
+message SetFeeResponse {
+
+}
+
+message GetUserReferralsRequest {
+  int32 skip = 1;
+  int32 limit = 2;
+  string user_id = 3;
+}
+
+message GetUserReferralsResponse{
+  repeated UserReferral list = 1;
+  int64 total = 2;
+}
+
+message UserReferral{
+  string user_id = 1;
+}
+
+message Referral {
+  string user_id = 1;
+  string product = 2;
+  string coin = 3;
+  string whitelabel_id = 4;
+  string fee = 5;
+  string whitelabel_fee = 6;
+  string referral_fee = 7;
+  string referral_id = 8;
+  google.protobuf.Timestamp created_at = 9;
+}
+
+message CreateRequest {
+  Referral referral = 1;
+}
+
+message CreateResponse {}
+
+message UpdateRequest {
+  Referral referral = 1;
+}
+
+message UpdateResponse {}
+
+message DeleteRequest {
+  string user_id = 1;
+  string product = 2;
+  string coin = 3;
+}
+
+message DeleteResponse {}
+
+message GetRequest {
+  string user_id = 1;
+  string product = 2;
+  string coin = 3;
+}
+
+message GetResponse {
+  Referral referral = 1;
+}
+
+message ListRequest {
+  int32 skip = 1;
+  int32 take = 2;
+  string user_id = 3;
+}
+
+message ListResponse {
+  repeated Referral list = 1;
+  int32 total_count = 2;
+}
+
+message HistoryRequest {
+  string user_id = 1;
+  string product = 2;
+  string coin = 3;
+  string whitelabel_id = 4;
+}
+
+message HistoryResponse {
+  repeated Referral history = 1;
+}
+
+message CreateMultipleRequest {
+  repeated Referral referrals=1;
+}
+
+message CreateMultipleResponse {}
+
+message UpdateFeeWithMultiplierRequest {
+  float multiplier = 1;
+  string user_id=2;
+  repeated string coins=3;
+  string product=4;
+}
+
+message UpdateFeeWithMultiplierResponse {}
+
+message UpdateFeeToDefaultRequest {
+  string product=1;
+  repeated string coins=2;
+  string user_id=3;
+}
+
+message UpdateFeeToDefaultResponse {}
+
+message UpdateWithPromoCodeRequest {
+  string user_id=1;
+  map<string,string> fee_multipliers=2;
+  map<string,string> ref_fee_multipliers=3;
+  string action_id=4;
+  string product=5;
+}
+
+message UpdateWithPromoCodeResponse {}

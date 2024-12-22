@@ -1,0 +1,81 @@
+syntax = "proto3";
+
+package email;
+option go_package = "code.emcdtech.com/emcd/service/email/protocol/email;email";
+
+// EmailProviderSettingsService сервис отвечает за настройку поддерживаемых email провайдеров по отправке писем
+// по white label
+service EmailProviderSettingsService {
+  rpc CreateEmailProviderSetting(CreateEmailProviderSettingRequest) returns (CreateEmailProviderSettingResponse) {}
+  rpc GetEmailProviderSetting(GetEmailProviderSettingRequest) returns (GetEmailProviderSettingResponse) {}
+  rpc UpdateEmailProviderSetting(UpdateEmailProviderSettingRequest) returns (UpdateEmailProviderSettingResponse) {}
+  rpc DeleteEmailProviderSetting(DeleteEmailProviderSettingRequest) returns (DeleteEmailProviderSettingResponse) {}
+  rpc ListEmailProviderSettings(ListEmailProviderSettingsRequest) returns (ListEmailProviderSettingsResponse) {}
+}
+
+message EmailProviderSetting {
+  message SMTP {
+    string username = 2;
+    string password = 3;
+    string host = 4;
+    int32 port = 5;
+    string from_address = 6;
+    string from_address_displayed_as = 7;
+  }
+
+  message Mailgun {
+    string domain = 2;
+    string api_key = 3;
+    string api_base = 4;
+    string from_address = 5;
+    string from_address_displayed_as = 6;
+  }
+
+  message Provider {
+    oneof Value {
+      SMTP smtp = 1;
+      Mailgun mailgun = 2;
+    }
+  }
+
+  string white_label_id = 1;
+  repeated Provider providers = 2;
+}
+
+message CreateEmailProviderSettingRequest {
+  EmailProviderSetting setting = 1;
+}
+
+message CreateEmailProviderSettingResponse {
+}
+
+message GetEmailProviderSettingRequest {
+  string white_label_id = 1;
+}
+
+message GetEmailProviderSettingResponse {
+  EmailProviderSetting setting = 1;
+}
+
+message UpdateEmailProviderSettingRequest {
+  EmailProviderSetting setting = 1;
+}
+
+message UpdateEmailProviderSettingResponse {
+}
+
+message DeleteEmailProviderSettingRequest {
+  string white_label_id = 1;
+}
+
+message DeleteEmailProviderSettingResponse {
+}
+
+message ListEmailProviderSettingsRequest {
+  string page_token = 1;
+}
+
+message ListEmailProviderSettingsResponse {
+  string next_page_token = 1;
+  repeated EmailProviderSetting settings = 2;
+}

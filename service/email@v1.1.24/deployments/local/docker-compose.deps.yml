@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  postgres:
+    container_name: postgres-email
+    image: postgres:16.1
+    restart: always
+    ports:
+      - "5452:5432"
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: email
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-U", "user", "-d", "email" ]
+      interval: 1s
+      timeout: 5s
+      retries: 10
+
+  flyway:
+    container_name: flyway-email-service
+    image: flyway/flyway:latest
+    command:
+      -url=jdbc:postgresql://postgres-email:5432/email -user=user -password=password -validateMigrationNaming="true" -connectRetries=60 migrate
+    volumes:
+      - ../../migrations:/flyway/sql
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  vault:
+    image: hashicorp/vault:latest
+    environment:
+      VAULT_DEV_ROOT_TOKEN_ID: testtoken
+    ports:
+      - "8252:8200"
+    privileged: true
+
+networks:
+  default:
+    name: network-email-service
